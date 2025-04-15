@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCS Local Driver Information</title>
+  <link rel="shortcut icon" href="DriverImg.png" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f9fc;
+      color: #333;
+      position: relative;
+      padding-bottom: 60px; /* Space for footer */
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #2c3e50;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .controls input, .controls select, .controls button {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .controls-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    thead {
+      background-color: #34495e;
+      color: #fff;
+    }
+    thead th, tbody td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    td button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    td button:hover {
+      background: #c0392b;
+    }
+    #footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #2c3e50;
+      color: white;
+      padding: 12px 0;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    #footer p {
+      margin: 0 0 5px 0;
+      font-size: 14px;
+      color: #ecf0f1;
+    }
+    
+    #footer a {
+      color: #1abc9c;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    
+    #footer a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      text-decoration: none;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #footer {
+        padding: 10px 0;
+      }
+      #footer p {
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      #footer a {
+        font-size: 14px;
+      }
+    }
+    @media (max-width: 500px) {
+      thead {
+        display: none;
+      }
+      table, tbody, tr, td {
+        display: block;
+        width: 100%;
+      }
+      tr {
+        margin-bottom: 1rem;
+        background: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        top: 1rem;
+        font-weight: bold;
+        text-align: left;
+      }
+      
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Driver Information</h1>
+
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search by any field..." />
+      <select id="locationFilter">
+        <option value="">Filter by location</option>
+      </select>
+
+      <div class="controls-row">
+        <input type="text" id="newVehicle" placeholder="Vehicle Number" />
+        <input type="text" id="newName" placeholder="Driver Name" />
+        <input type="text" id="newID" placeholder="Driver ID" />
+        <input type="text" id="newContact" placeholder="Contact" />
+        <input type="text" id="newFrom" placeholder="From" />
+        <button onclick="addDriver()">Add Driver</button>
+        <button onclick="downloadExcel()">Download Excel</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>S/L</th>
+            <th>Vehicle Number</th>
+            <th>Driver Name</th>
+            <th>Driver ID</th>
+            <th>Contact</th>
+            <th>From</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="driverTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="footer">
+    <p>Developed By</p>
+    <a href="https://www.facebook.com/Towhidul.islam.Rony.1.0" target="_blank">Towhidul Islam Rony</a>
+  </div>
+
+  <script>
+    const driverData = [
+  { vehicle: "14-1660", name: "KHOKON", id: "KMP-2213", contact: "01876131058", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1039", name: "FARUK", id: "KLP-4600", contact: "01777346162", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1016", name: "JULFIKER", id: "KLP-4625", contact: "01786331993", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1657", name: "BELAL", id: "HKG-0548", contact: "01710450568", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1891", name: "RIDOY", id: "HKG-0206", contact: "01998984200", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1892", name: "MUSA-2", id: "HKG-0279", contact: "01799663536", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-2047", name: "EMAM", id: "KLP-4590", contact: "01781518150", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-2075", name: "HELAL-3", id: "KMP-2212", contact: "01601257169", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1149", name: "SHOHEL", id: "KLP-4645", contact: "01906660082", from: "KLP (KALLYANPUR)" },
+  { vehicle: "13-2101", name: "RAJU", id: "KMP-2139", contact: "01868919191", from: "KLP (KALLYANPUR)" },
+  { vehicle: "13-2103", name: "BELLAL-10", id: "KMP-2336", contact: "01833276901", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1819", name: "KASHEM-3", id: "KMP-2074", contact: "01778704543", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1152", name: "ALOM", id: "HKG-0541", contact: "01872023543", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-0743", name: "RAKIBUL", id: "KLP-4599", contact: "01613715976", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1150", name: "SOHEL", id: "HKG-0539", contact: "01712186468", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1014", name: "SUMON", id: "KMP-1652", contact: "01846320431", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-0057", name: "ASRAF", id: "KLP-1580", contact: "01927589304", from: "KLP (KALLYANPUR)" },
+  { vehicle: "54-0850", name: "NAHID", id: "KMP-2321", contact: "01748597401", from: "KLP (KALLYANPUR)" },
+  { vehicle: "54-0851", name: "TUHIN", id: "HKG-0273", contact: "01747254221", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-2078", name: "ZIHAD", id: "HKG-0212", contact: "01968423391", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-0567", name: "MINTU", id: "HKG-0524", contact: "01856384065", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-7755", name: "ARIFUR-8", id: "KMP-2380", contact: "01849224412", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-7759", name: "JOHIR", id: "KMP-2381", contact: "01948352860", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-7763", name: "SOBUJ-7", id: "KMP-2214", contact: "01712547012", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-1288", name: "ARIF", id: "KLP-4683", contact: "01323645049", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1785", name: "IBRAHIM", id: "HKG-00538", contact: "01749170363", from: "KLP (KALLYANPUR)" },
+  { vehicle: "54-1107", name: "ASHIK", id: "KLP-4674", contact: "01716200715", from: "KLP (KALLYANPUR)" },
+  { vehicle: "11-1040", name: "N/A", id: "N/A", contact: "", from: "KLP (KALLYANPUR)" },
+  { vehicle: "14-1899", name: "TAREQ", id: "N/A", contact: "01754921386", from: "(HKG) HUB KERANIGANJ" },
+  { vehicle: "14-1904", name: "ROHIM", id: "N/A", contact: "01632380353 & 01324183138", from: "(HKG) HUB KERANIGANJ" },
+  { vehicle: "13-1854", name: "PARVEZ", id: "N/A", contact: "01305148531", from: "(HKG) HUB KERANIGANJ" },
+  { vehicle: "13-2099", name: "MOJNU", id: "N/A", contact: "01791795726", from: "(HKG) HUB KERANIGANJ" },
+  { vehicle: "14-1134", name: "NAEEM", id: "N/A", contact: "01679156862", from: "(HKG) HUB KERANIGANJ" },
+  { vehicle: "54-1750", name: "SOHEL", id: "N/A", contact: "01735112969", from: "(U15) UTTARA -15" },
+  { vehicle: "54-1754", name: "SAHABUDDIN", id: "N/A", contact: "01677474326", from: "(U15) UTTARA -15" },
+  { vehicle: "13-1875", name: "BASIRUL", id: "N/A", contact: "01894629122", from: "(U15) UTTARA -15" },
+  { vehicle: "14-1777", name: "OSMAN", id: "N/A", contact: "01739092447", from: "(U15) UTTARA -15" },
+  { vehicle: "14-1786", name: "ARIF", id: "N/A", contact: "01735508375", from: "(U15) UTTARA -15" }
+];
+
+
+    const tableBody = document.getElementById('driverTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const locationFilter = document.getElementById('locationFilter');
+
+    function renderTable(data) {
+      tableBody.innerHTML = '';
+      data.forEach((driver, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="S/L">${index + 1}</td>
+          <td data-label="Vehicle Number">${driver.vehicle}</td>
+          <td data-label="Driver Name">${driver.name}</td>
+          <td data-label="Driver ID">${driver.id}</td>
+          <td data-label="Contact">${driver.contact}</td>
+          <td data-label="From">${driver.from}</td>
+          <td data-label="Action"><button onclick="deleteDriver(${index})">Delete</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function populateLocations() {
+      locationFilter.innerHTML = '<option value=\"\">Filter by location</option>';
+      const locations = [...new Set(driverData.map(d => d.from))];
+      locations.forEach(loc => {
+        const option = document.createElement('option');
+        option.value = loc;
+        option.textContent = loc;
+        locationFilter.appendChild(option);
+      });
+    }
+
+    function filterData() {
+      const search = searchInput.value.toLowerCase();
+      const location = locationFilter.value;
+      const filtered = driverData.filter(d => {
+        return (
+          (!location || d.from === location) &&
+          (d.vehicle.toLowerCase().includes(search) ||
+           d.name.toLowerCase().includes(search) ||
+           d.id.toLowerCase().includes(search) ||
+           d.contact.includes(search))
+        );
+      });
+      renderTable(filtered);
+    }
+
+    function addDriver() {
+      const vehicle = document.getElementById('newVehicle').value.trim();
+      const name = document.getElementById('newName').value.trim();
+      const id = document.getElementById('newID').value.trim();
+      const contact = document.getElementById('newContact').value.trim();
+      const from = document.getElementById('newFrom').value.trim();
+
+      if (vehicle && name && id && contact && from) {
+        driverData.push({ vehicle, name, id, contact, from });
+        document.querySelectorAll('.controls-row input').forEach(input => input.value = '');
+        populateLocations();
+        filterData();
+      } else {
+        alert('Please fill out all fields before adding.');
+      }
+    }
+
+    function deleteDriver(index) {
+      if (confirm('Are you sure you want to delete this entry?')) {
+        driverData.splice(index, 1);
+        populateLocations();
+        filterData();
+      }
+    }
+
+    function downloadExcel() {
+      const wb = XLSX.utils.book_new();
+      // Add serial numbers to the data for Excel export
+      const excelData = driverData.map((driver, index) => ({
+        'S/L': index + 1,
+        'Vehicle Number': driver.vehicle,
+        'Driver Name': driver.name,
+        'Driver ID': driver.id,
+        'Contact': driver.contact,
+        'From': driver.from
+      }));
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Drivers');
+      XLSX.writeFile(wb, 'driver-info.xlsx');
+    }
+
+    searchInput.addEventListener('input', filterData);
+    locationFilter.addEventListener('change', filterData);
+
+    populateLocations();
+    renderTable(driverData);
+  </script>
+</body>
+</html>
