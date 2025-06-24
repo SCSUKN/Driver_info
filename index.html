@@ -1,200 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SCS Essential Contacts</title>
-  <link rel="shortcut icon" href="DriverImg.png" type="image/x-icon">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f7f9fc;
-      color: #333;
-      position: relative;
-      padding-bottom: 60px; /* Space for footer */
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 2rem;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #2c3e50;
-    }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .controls input, .controls select, .controls button {
-      padding: 0.8rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    .controls-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .table-container {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    thead {
-      background-color: #34495e;
-      color: #fff;
-    }
-    thead th, tbody td {
-      padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    td button {
-      background: #e74c3c;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    td button:hover {
-      background: #c0392b;
-    }
-    #footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #2c3e50;
-      color: white;
-      padding: 10px 0;
-      text-align: center;
-      z-index: 1000;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    #footer p {
-      margin: 0 0 5px 0;
-      font-size: 14px;
-      color: #ecf0f1;
-    }
-    
-    #footer a {
-      color: #1abc9c;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
-    
-    #footer a:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      text-decoration: none;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      #footer {
-        padding: 10px 0;
-      }
-      #footer p {
-        font-size: 13px;
-        margin-bottom: 3px;
-      }
-      #footer a {
-        font-size: 14px;
-      }
-    }
-    @media (max-width: 500px) {
-      thead {
-        display: none;
-      }
-      table, tbody, tr, td {
-        display: block;
-        width: 100%;
-      }
-      tr {
-        margin-bottom: 1rem;
-        background: #fff;
-        padding: 1rem;
-        border-radius: 8px;
-      }
-      td {
-        text-align: right;
-        padding-left: 50%;
-        position: relative;
-      }
-      td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 1rem;
-        top: 1rem;
-        font-weight: bold;
-        text-align: left;
-      }
-      
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS Essential Contacts </title>
+    <link rel="shortcut icon" href="DriverImg.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-excel {
+            background-color: #1d6f42;
+            color: white;
+        }
+        
+        .btn-excel:hover {
+            background-color: #165a35;
+            color: white;
+        }
+        
+        .btn-pdf {
+            background-color: #d33f3f;
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #b03535;
+            color: white;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 20px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 20px;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            .tab-pane.active, .tab-pane.active * {
+                visibility: visible;
+            }
+            
+            .tab-pane.active {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            
+            .table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            
+            .table th, .table td {
+                border: 1px solid #ddd !important;
+                padding: 8px !important;
+            }
+            
+            .table th {
+                background-color: #f2f2f2 !important;
+            }
+            
+            .dataTables_info, .dataTables_paginate {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .card {
+                margin-bottom: 10px;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+            }
+            
+            .button-group {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Phone number styling from your reference code */
+        .phone-number {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .phone-number:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        
+        .phone-number::before {
+            content: '📞';
+            font-size: 0.9em;
+        }
+        
+        .multiple-numbers {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>SCS Essential Contacts</h1>
-    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-address-book me-2"></i>SCS Essential Contacts
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by any field..." />
-      <select id="locationFilter">
-        <option value="">Filter by location</option>
-      </select>
+    <div class="container mt-4">
+        <div class="card no-print">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-table me-2"></i>Contact Management</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="drivers-tab" data-bs-toggle="tab" data-bs-target="#drivers" type="button" role="tab">
+                            <i class="fas fa-truck me-1"></i> Drivers
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="c4-tab" data-bs-toggle="tab" data-bs-target="#c4" type="button" role="tab">
+                            <i class="fas fa-headset me-1"></i> C4 Contacts
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">
+                            <i class="fas fa-user-tie me-1"></i> Administration
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="it-tab" data-bs-toggle="tab" data-bs-target="#it" type="button" role="tab">
+                            <i class="fas fa-laptop-code me-1"></i> IT
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="operation-tab" data-bs-toggle="tab" data-bs-target="#operation" type="button" role="tab">
+                            <i class="fas fa-users-cog me-1"></i> Operation
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3" id="myTabContent">
+                    <!-- Drivers Tab -->
+                    <div class="tab-pane fade show active" id="drivers" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3 no-print">
+                            <div class="button-group">
+                                <button class="btn btn-success btn-excel" onclick="exportToExcel('driversTable', 'Drivers_Data')">
+                                    <i class="fas fa-file-excel me-1"></i> Excel
+                                </button>
+                                <button class="btn btn-pdf" onclick="exportToPDF('driversTable', 'Drivers_Data')">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="printActiveTab()">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="driversTable" class="table table-striped table-hover table-bordered" style="width:100%">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>S/L</th>
+                                        <th>Vehicle Number</th>
+                                        <th>Driver Name</th>
+                                        <th>Driver ID</th>
+                                        <th>Contact</th>
+                                        <th>From</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driversTableBody">
+                                    <!-- Data will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- C4 Contacts Tab -->
+                    <div class="tab-pane fade" id="c4" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3 no-print">
+                            <div class="button-group">
+                                <button class="btn btn-success btn-excel" onclick="exportToExcel('c4Table', 'C4_Contacts_Data')">
+                                    <i class="fas fa-file-excel me-1"></i> Excel
+                                </button>
+                                <button class="btn btn-pdf" onclick="exportToPDF('c4Table', 'C4_Contacts_Data')">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="printActiveTab()">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="c4Table" class="table table-striped table-hover table-bordered" style="width:100%">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>S/L</th>
+                                        <th>Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Division/Area</th>
+                                        <th>Hub Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="c4TableBody">
+                                    <!-- Data will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Administration Tab -->
+                    <div class="tab-pane fade" id="admin" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3 no-print">
+                            <div class="button-group">
+                                <button class="btn btn-success btn-excel" onclick="exportToExcel('adminTable', 'Administration_Data')">
+                                    <i class="fas fa-file-excel me-1"></i> Excel
+                                </button>
+                                <button class="btn btn-pdf" onclick="exportToPDF('adminTable', 'Administration_Data')">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="printActiveTab()">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="adminTable" class="table table-striped table-hover table-bordered" style="width:100%">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>S/L</th>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+                                        <th>Contact</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminTableBody">
+                                    <!-- Data will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- IT Tab -->
+                    <div class="tab-pane fade" id="it" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3 no-print">
+                            <div class="button-group">
+                                <button class="btn btn-success btn-excel" onclick="exportToExcel('itTable', 'IT_Contacts_Data')">
+                                    <i class="fas fa-file-excel me-1"></i> Excel
+                                </button>
+                                <button class="btn btn-pdf" onclick="exportToPDF('itTable', 'IT_Contacts_Data')">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="printActiveTab()">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="itTable" class="table table-striped table-hover table-bordered" style="width:100%">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>S/L</th>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+                                        <th>Contact</th>
+                                        <th>Working Dept.</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itTableBody">
+                                    <!-- Data will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Operation Tab -->
+                    <div class="tab-pane fade" id="operation" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3 no-print">
+                            <div class="button-group">
+                                <button class="btn btn-success btn-excel" onclick="exportToExcel('operationTable', 'Operation_Contacts_Data')">
+                                    <i class="fas fa-file-excel me-1"></i> Excel
+                                </button>
+                                <button class="btn btn-pdf" onclick="exportToPDF('operationTable', 'Operation_Contacts_Data')">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="printActiveTab()">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="operationTable" class="table table-striped table-hover table-bordered" style="width:100%">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>S/L</th>
+                                        <th>Name</th>
+                                        <th>Contact</th>
+                                        <th>Designation</th>
+                                        <th>Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="operationTableBody">
+                                    <!-- Data will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="Dev_tag">
+            <!DOCTYPE html>
 
-      <div class="controls-row">
+    <!-- Previous head content remains the same -->
+    <style>
+        /* Previous styles remain the same */
         
-        <button onclick="downloadExcel()">Download Excel</button>
-      </div>
+        /* Developer Tag Styles */
+        .developer-tag {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            transform: translateY(100px);
+            opacity: 0;
+            animation: slideUp 0.5s ease forwards 1s;
+        }
+        
+        .developer-tag:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .developer-tag a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .developer-tag i {
+            font-size: 16px;
+        }
+        
+        .developer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .developer-tag {
+                bottom: 10px;
+                right: 10px;
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .developer-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
+    </style>
+
+    <!-- All previous body content remains the same -->
+    
+    <!-- Developer Tag -->
+    <div class="developer-tag no-print">
+        <div class="developer-avatar">TR</div>
+        <a href="https://www.facebook.com/Towhidul.islam.Rony.1.0" target="_blank">
+            Developed By Towhidul Islam Rony
+            <i class="fas fa-external-link-alt"></i>
+        </a>
     </div>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>S/L</th>
-            <th>Vehicle Number</th>
-            <th>Driver Name</th>
-            <th>Driver ID</th>
-            <th>Contact</th>
-            <th>From</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="driverTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="footer">
-    <p>Developed By</p>
-    <a href="https://www.facebook.com/Towhidul.islam.Rony.1.0" target="_blank">Towhidul Islam Rony</a>
-  </div>
+    <!-- Previous scripts remain the same -->
+    <script>
+        // Previous JavaScript remains the same
+        
+        // Add this to your existing script
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTables();
+            
+            // Add hover effect for developer tag
+            const devTag = document.querySelector('.developer-tag');
+            if (devTag) {
+                devTag.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                devTag.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            }
+        });
+    </script>
 
-  <script>
-    const driverData = [
-  { vehicle: "14-1660", name: "KHOKON", id: "KMP-2213", contact: "01876131058", from: "KLP (KALLYANPUR)" },
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        // Data structure like your reference code
+        const driverData = [
+    { vehicle: "14-1660", name: "KHOKON", id: "KMP-2213", contact: "01876131058", from: "KLP (KALLYANPUR)" },
   { vehicle: "11-1039", name: "FARUK", id: "KLP-4600", contact: "01777346162 & 01823205385", from: "KLP (KALLYANPUR)" },
   { vehicle: "14-1016", name: "JULFIKER", id: "KLP-4625", contact: "01786331993", from: "KLP (KALLYANPUR)" },
   { vehicle: "14-1657", name: "BELAL", id: "HKG-0548", contact: "01710450568", from: "KLP (KALLYANPUR)" },
@@ -237,102 +582,246 @@
   { vehicle: "13-1875", name: "BASIRUL", id: "N/A", contact: "01894629122", from: "(U15) UTTARA -15" },
   { vehicle: "14-1777", name: "OSMAN", id: "N/A", contact: "01739092447", from: "(U15) UTTARA -15" },
   { vehicle: "14-1786", name: "ARIF", id: "N/A", contact: "01735508375", from: "(U15) UTTARA -15" }
-];
+        ];
 
+        const c4Data = [
+            { name: "Mr. Helal Uddin", contact: "01936003342", division: "Manager (C4)", hub: "Hub Keraniganj (HKG)" },
+            { name: "N/A", contact: "01936003342", division: "Manager (C4)", hub: "Hub Kallyanpur (HKL)" },
+            { name: "Mr. Tanjil", contact: "01979580631", division: "MYMENSINGH & SYLHET", hub: "Hub Keraniganj (HKG)" },
+            { name: "MR. Rabbi", contact: "01952255780 & 01609891575", division: "CHATTAGRAM", hub: "Hub Keraniganj (HKG)" },
+            { name: "MR. Omar", contact: "01936003315", division: "(KHULNA) JSR, MHP, CHA, JHD, KST, CHA, SAT", hub: "Hub Keraniganj (HKG)" },
+            { name: "MR. Shuvo", contact: "01963603009", division: "BARISHAL", hub: "Hub Keraniganj (HKG)" },
+            { name: "MRS. Kuntola", contact: "01963603036", division: "Dhaka-North", hub: "Hub Kallyanpur (HKL)" },
+            { name: "Mr. Shafiq", contact: "01811110105 & 01974524120", division: "HKL__Floor_Day", hub: "Hub Kallyanpur (HKL)" },
+            { name: "Mr. Biddut", contact: "01963603047", division: "HKL__Floor_Night", hub: "Hub Kallyanpur (HKL)" },
+            
+        ];
 
-    const tableBody = document.getElementById('driverTableBody');
-    const searchInput = document.getElementById('searchInput');
-    const locationFilter = document.getElementById('locationFilter');
+        const adminData = [
+            { name: "Example", designation: "Example", contact: "Example" },
+            
+           
+        ];
 
-    function renderTable(data) {
-      tableBody.innerHTML = '';
-      data.forEach((driver, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td data-label="S/L">${index + 1}</td>
-          <td data-label="Vehicle Number">${driver.vehicle}</td>
-          <td data-label="Driver Name">${driver.name}</td>
-          <td data-label="Driver ID">${driver.id}</td>
-          <td data-label="Contact">${driver.contact}</td>
-          <td data-label="From">${driver.from}</td>
-          <td data-label="Action"><button onclick="deleteDriver(${index})">Delete</button></td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+        const itData = [
+            { name: "Mr. Nahid Rahim", designation: "IT Manager", contact: "01936008423 & 01712868540", dept: "Software Permission" },
+            { name: "Mr. Dipu", designation: "Software Developer", contact: "01990940129", dept: "Development" },
+            { name: "Mr. Roton", designation: "Network Engineer", contact: "01822443356", dept: "Networking" },
+            { name: "Mr. Mamun", designation: "In-Charge (MR Cancel)", contact: "01952255740", dept: "To-Pay" },
+            { name: "Mr. Sakib", designation: "Read-Cancel", contact: "01936003206", dept: "Accounts" },
+            { name: "Mr. Torikul Islam", designation: "Incharge", contact: "01680629433", dept: "Amendment & Void" },
+            { name: "Mr. Sakon", designation: "IT Executive", contact: "01680629433", dept: "Service" },
+            { name: "Mr. Monir", designation: "IT Hardware (Barcode_printer) ", contact: "01936006536", dept: "Servicing" },
+            { name: "Mr. Nasim", designation: "IT Hardware (Laser_printer) ", contact: "01956091741", dept: "Servicing" },
+            { name: "Mr. Afjal", designation: "IT Hardware ", contact: "01778573445", dept: "Procurement" },
+            { name: "Mrs. Nita", designation: "IT Requsition ", contact: "01936008294", dept: "Requsition" },
+            { name: "Hot-Line", designation: "Hot-Line", contact: "09678119130", dept: "Service" }
+           
+        ];
 
-    function populateLocations() {
-      locationFilter.innerHTML = '<option value=\"\">Filter by location</option>';
-      const locations = [...new Set(driverData.map(d => d.from))];
-      locations.forEach(loc => {
-        const option = document.createElement('option');
-        option.value = loc;
-        option.textContent = loc;
-        locationFilter.appendChild(option);
-      });
-    }
+        const operationData = [
+            { name: "MR. FAZLE HAQUE", contact: "01716528315", designation: "Deputy Director", role: "Operation (HKG)" },
+            { name: "Mr. Saledin Newaz Joy", contact: "01511120801", designation: "Director", role: "Operation (HKL)" },
+            { name: "Mr. Abul Hossain", contact: "01972749514", designation: "AGM", role: "Night Operation (HKL)" },
+            { name: "Mr. Wasi Uddin", contact: "01712209516", designation: "AGM", role: "Day Operation (HKL & HKG)" },
+            { name: "Mr. Ranzu", contact: "01936003363", designation: "Manager", role: "Night Operation (HKL)" },
+            { name: "Mr. Mehedi Hasan", contact: "01952255783", designation: "Manager", role: " GPC & Night Operation (HKG)" },
+            { name: "Mr. Alam", contact: "01904799734", designation: "Manager", role: "Night Operation (HKG)" },
+            { name: "Mr. Dulal Mia", contact: "01936003234", designation: "Manager", role: "Day Operation (HKL)" },
+            { name: "Mr. Nurul Islam", contact: "01936003317", designation: "In-Charge", role: "Day Operation (HKG)" },
+            { name: "Mr. Al Ajim Shikder Tipu", contact: "01929128366 & 01718271886", designation: "In-Charge", role: "Night Operation (HKG)" },
+            { name: "Mr. Fokhrul Islam", contact: "01936003189 ", designation: "DGM", role: "Divisional Head ( Dhaka-North )" },
+            
+        ];
 
-    function filterData() {
-      const search = searchInput.value.toLowerCase();
-      const location = locationFilter.value;
-      const filtered = driverData.filter(d => {
-        return (
-          (!location || d.from === location) &&
-          (d.vehicle.toLowerCase().includes(search) ||
-           d.name.toLowerCase().includes(search) ||
-           d.id.toLowerCase().includes(search) ||
-           d.contact.includes(search))
-        );
-      });
-      renderTable(filtered);
-    }
+        // Function to format phone numbers (from your reference code)
+        function formatPhoneNumber(contact) {
+            if (!contact) return 'N/A';
+            
+            // Handle multiple numbers separated by "&" or "and"
+            if (contact.includes('&') || contact.includes('and')) {
+                const numbers = contact.split(/&|and/).map(num => num.trim()).filter(num => num);
+                return numbers.map(num => {
+                    // Remove any non-digit characters
+                    const cleanNum = num.replace(/\D/g, '');
+                    return `<a href="tel:${cleanNum}" class="phone-number">${num}</a>`;
+                }).join(' & ');
+            }
+            
+            // Handle single number
+            const cleanNum = contact.replace(/\D/g, '');
+            return `<a href="tel:${cleanNum}" class="phone-number">${contact}</a>`;
+        }
 
-    function addDriver() {
-      const vehicle = document.getElementById('newVehicle').value.trim();
-      const name = document.getElementById('newName').value.trim();
-      const id = document.getElementById('newID').value.trim();
-      const contact = document.getElementById('newContact').value.trim();
-      const from = document.getElementById('newFrom').value.trim();
+        // Function to render tables
+        function renderTables() {
+            // Drivers table
+            const driversTableBody = document.getElementById('driversTableBody');
+            driversTableBody.innerHTML = driverData.map((driver, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${driver.vehicle}</td>
+                    <td>${driver.name}</td>
+                    <td>${driver.id}</td>
+                    <td>${formatPhoneNumber(driver.contact)}</td>
+                    <td>${driver.from}</td>
+                </tr>
+            `).join('');
 
-      if (vehicle && name && id && contact && from) {
-        driverData.push({ vehicle, name, id, contact, from });
-        document.querySelectorAll('.controls-row input').forEach(input => input.value = '');
-        populateLocations();
-        filterData();
-      } else {
-        alert('Please fill out all fields before adding.');
-      }
-    }
+            // C4 table
+            const c4TableBody = document.getElementById('c4TableBody');
+            c4TableBody.innerHTML = c4Data.map((contact, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${contact.name}</td>
+                    <td>${formatPhoneNumber(contact.contact)}</td>
+                    <td>${contact.division}</td>
+                    <td>${contact.hub}</td>
+                </tr>
+            `).join('');
 
-    function deleteDriver(index) {
-      if (confirm('Are you sure you want to delete this entry?')) {
-        driverData.splice(index, 1);
-        populateLocations();
-        filterData();
-      }
-    }
+            // Admin table
+            const adminTableBody = document.getElementById('adminTableBody');
+            adminTableBody.innerHTML = adminData.map((admin, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${admin.name}</td>
+                    <td>${admin.designation}</td>
+                    <td>${formatPhoneNumber(admin.contact)}</td>
+                </tr>
+            `).join('');
 
-    function downloadExcel() {
-      const wb = XLSX.utils.book_new();
-      // Add serial numbers to the data for Excel export
-      const excelData = driverData.map((driver, index) => ({
-        'S/L': index + 1,
-        'Vehicle Number': driver.vehicle,
-        'Driver Name': driver.name,
-        'Driver ID': driver.id,
-        'Contact': driver.contact,
-        'From': driver.from
-      }));
-      const ws = XLSX.utils.json_to_sheet(excelData);
-      XLSX.utils.book_append_sheet(wb, ws, 'Drivers');
-      XLSX.writeFile(wb, 'driver-info.xlsx');
-    }
+            // IT table
+            const itTableBody = document.getElementById('itTableBody');
+            itTableBody.innerHTML = itData.map((it, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${it.name}</td>
+                    <td>${it.designation}</td>
+                    <td>${formatPhoneNumber(it.contact)}</td>
+                    <td>${it.dept}</td>
+                </tr>
+            `).join('');
 
-    searchInput.addEventListener('input', filterData);
-    locationFilter.addEventListener('change', filterData);
+            // Operation table
+            const operationTableBody = document.getElementById('operationTableBody');
+            operationTableBody.innerHTML = operationData.map((op, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${op.name}</td>
+                    <td>${formatPhoneNumber(op.contact)}</td>
+                    <td>${op.designation}</td>
+                    <td>${op.role}</td>
+                </tr>
+            `).join('');
 
-    populateLocations();
-    renderTable(driverData);
-  </script>
+            // Initialize DataTables
+            $('#driversTable').DataTable();
+            $('#c4Table').DataTable();
+            $('#adminTable').DataTable();
+            $('#itTable').DataTable();
+            $('#operationTable').DataTable();
+        }
+
+        // Function to export table data to Excel
+        function exportToExcel(tableID, filename) {
+            let table = document.getElementById(tableID);
+            let workbook = XLSX.utils.table_to_book(table, {sheet: "Sheet 1"});
+            XLSX.writeFile(workbook, filename + '.xlsx');
+        }
+
+        // Function to export table data to PDF
+        function exportToPDF(tableID, filename) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const table = document.getElementById(tableID);
+            const headers = [];
+            const headerRows = table.querySelectorAll('thead tr');
+            headerRows.forEach(row => {
+                const ths = row.querySelectorAll('th');
+                ths.forEach(th => {
+                    headers.push(th.textContent);
+                });
+            });
+            
+            const data = [];
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const rowData = [];
+                const tds = row.querySelectorAll('td');
+                tds.forEach(td => {
+                    // Remove HTML tags from phone numbers
+                    rowData.push(td.textContent.replace(/📞/g, '').trim());
+                });
+                data.push(rowData);
+            });
+            
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                },
+                margin: { top: 10 },
+            });
+            
+            doc.save(filename + '.pdf');
+        }
+
+        // Print only the active tab content
+        function printActiveTab() {
+            let printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.open();
+            
+            const activeTab = document.querySelector('.tab-pane.active');
+            const title = document.querySelector('.nav-tabs .active').textContent.trim();
+            const table = activeTab.querySelector('table').cloneNode(true);
+            
+            // Remove DataTables classes
+            table.className = '';
+            table.style.width = '100%';
+            
+            // Clean up phone numbers for print
+            const phoneLinks = table.querySelectorAll('.phone-number');
+            phoneLinks.forEach(link => {
+                link.outerHTML = link.textContent.replace(/📞/g, '');
+            });
+            
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print ${title}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h2 { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        @page { size: auto; margin: 0mm; }
+                    </style>
+                </head>
+                <body>
+                    <h2>${title}</h2>
+                    ${table.outerHTML}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTables();
+        });
+    </script>
 </body>
 </html>
