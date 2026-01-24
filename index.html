@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
+        
         :root {
             --primary-color: #3498db;
             --secondary-color: #2980b9;
@@ -19,6 +20,38 @@
             --light-color: #ecf0f1;
             --dark-color: #2c3e50;
         }
+
+
+        
+
+        /* 1. Hide the warning by default */
+.resolution-warning {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f8d7da; /* Light red background */
+  color: #721c24;
+  text-align: center;
+  padding-top: 20%;
+  z-index: 9999; /* Ensures it stays on top */
+}
+
+/* 2. The Media Query for screens less than 770px */
+@media screen and (max-width: 769px) {
+  .resolution-warning {
+    display: block; /* Show the warning */
+  }
+
+  .main-content {
+    display: none; /* Hide the rest of the site */
+  }
+}
+
+
+
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -197,6 +230,23 @@
     </style>
 </head>
 <body>
+
+
+
+    
+    
+    <div class="resolution-warning">
+  <h1>Incompatible Screen Size</h1>
+  <p>Your screen width should be more than 770 pixels to view this site.</p>
+</div>
+
+
+
+    
+<div class="main-content">
+  <p>Welcome to the site!</p>
+</div>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -849,6 +899,7 @@
     </script>
 </body>
 </html>
+
 
 
 
