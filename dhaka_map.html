@@ -3,410 +3,506 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dhaka Delivery Hub Map</title>
-  <link rel="icon" type="image/png" href="Fevicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Dhaka Delivery Hub | Smart Directory</title>
+<link rel="icon" type="image/png" href="Fevicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #111418;
-    --card: #181d24;
-    --border: #252c36;
-    --accent: #f0a500;
-    --accent2: #00c6a7;
-    --text: #e8eaf0;
-    --muted: #6b7585;
-    --tag-bg: #1e2530;
-    --row-hover: #1c2230;
-    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
+    background: #f4f7fc;
+    font-family: 'Inter', sans-serif;
+    color: #1a2c3e;
     overflow-x: hidden;
   }
 
-  /* ── HEADER ── */
-  header {
-    background: linear-gradient(135deg, #0f1520 0%, #0a0c10 60%);
-    border-bottom: 1px solid var(--border);
-    padding: 28px 24px 20px;
+  /* NEW COLOR PALETTE : deep teal + soft coral accent */
+  :root {
+    --bg-body: #eef2f5;
+    --surface-card: #ffffff;
+    --surface-elevated: #f8fafd;
+    --border-soft: #e2e8f0;
+    --accent-primary: #e67e22;   /* warm orange */
+    --accent-dark: #d35400;
+    --accent-secondary: #1e7e6c; /* teal */
+    --text-main: #1e2f3e;
+    --text-muted: #5c6f87;
+    --tag-bg: #f0f3f8;
+    --row-hover: #fef9ef;
+    --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 12px 28px -8px rgba(0, 0, 0, 0.08);
+    --badge-od: #e67e221a;
+    --badge-hd: #1e7e6c1a;
+  }
+
+  /* GLOBAL */
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* HEADER with right-side button */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(0px);
     position: sticky;
     top: 0;
-    z-index: 100;
-    backdrop-filter: blur(12px);
+    z-index: 110;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
 
-  .header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .brand-row {
+  .brand-area {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
+    align-items: baseline;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
   .brand-badge {
-    background: var(--accent);
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 11px;
-    letter-spacing: 2px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    text-transform: uppercase;
+    background: var(--accent-primary);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border-radius: 40px;
+    font-family: 'Space Grotesk', monospace;
   }
 
   h1 {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(18px, 4vw, 28px);
-    color: var(--text);
-    letter-spacing: -0.5px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #1e2f3e 0%, #1e7e6c 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
   }
 
-  h1 span { color: var(--accent); }
-
-  .subtitle {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin-top: 2px;
+  h1 span {
+    background: linear-gradient(135deg, #e67e22, #ffb347);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
   }
 
-  /* ── CONTROLS ── */
-  .controls {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  @media (max-width: 700px) {
-    .controls { grid-template-columns: 1fr 1fr; }
-    .search-wrap { grid-column: 1 / -1; }
-  }
-
-  .search-wrap {
-    position: relative;
-  }
-
-  .search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    font-size: 15px;
-    pointer-events: none;
-  }
-
-  #searchInput {
-    width: 100%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 11px 14px 11px 40px;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  #searchInput:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(240,165,0,0.1);
-  }
-
-  #searchInput::placeholder { color: var(--muted); }
-
-  select {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 11px 36px 11px 14px;
-    border-radius: 8px;
-    outline: none;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7585' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    transition: border-color 0.2s;
-    min-width: 150px;
-  }
-
-  select:focus { border-color: var(--accent2); }
-
-  /* ── STATS BAR ── */
-  .stats-bar {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 24px;
+  .action-buttons {
     display: flex;
+    gap: 14px;
     align-items: center;
-    gap: 20px;
+  }
+
+  /* fixed style button */
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: 60px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  .btn-primary {
+    background: var(--accent-primary);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(230,126,34,0.25);
+  }
+
+  .btn-outline {
+    background: white;
+    border: 1px solid var(--border-soft);
+    color: var(--text-main);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: #fff7ef;
+  }
+
+  .contact-btn {
+    background: #1e2f3e;
+    color: white;
+    border: none;
+    font-weight: 600;
+  }
+
+  .contact-btn:hover {
+    background: #0f212e;
+    transform: scale(0.98);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  /* STATS + FILTERS region */
+  .stats-filters {
+    background: var(--surface-card);
+    margin: 20px 24px 0 24px;
+    border-radius: 24px;
+    padding: 18px 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-soft);
+  }
+
+  .stats-row {
+    display: flex;
     flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .stat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
   .stat-pill {
+    background: var(--tag-bg);
+    border-radius: 40px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 11px;
-    color: var(--muted);
+    color: var(--text-muted);
   }
-
   .stat-pill strong {
-    color: var(--accent);
+    color: var(--accent-secondary);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .search-box {
+    position: relative;
+    flex: 2;
+    min-width: 220px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: 60px;
+    font-family: 'Inter', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(230,126,34,0.1);
+  }
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  select {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: 40px;
+    padding: 10px 32px 10px 16px;
+    font-size: 12px;
+    font-family: 'Inter', monospace;
+    color: var(--text-main);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235c6f87' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border-soft);
+    border-radius: 40px;
+    padding: 9px 20px;
+    font-size: 12px;
     font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .clear-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
   }
 
-  #resultCount {
-    margin-left: auto;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  /* ── TABLE CONTAINER ── */
+  /* TABLE SECTION */
   .table-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 24px 40px;
+    margin: 24px 24px 48px 24px;
+    background: var(--surface-card);
+    border-radius: 24px;
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
   }
 
   .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
+    overflow-x: auto;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 13px;
   }
 
   thead {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
+    background: #f9fbfd;
+    border-bottom: 1px solid var(--border-soft);
   }
-
   th {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 14px 16px;
     text-align: left;
-    white-space: nowrap;
+    padding: 16px 18px;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
     cursor: pointer;
-    user-select: none;
     transition: color 0.2s;
   }
-
-  th:hover { color: var(--accent); }
-  th.sorted { color: var(--accent); }
-
-  th .sort-arrow { margin-left: 4px; opacity: 0.4; }
-  th.sorted .sort-arrow { opacity: 1; }
-
-  tbody tr {
-    border-bottom: 1px solid rgba(37,44,54,0.5);
-    transition: background 0.15s;
-    animation: fadeRow 0.2s ease both;
+  th:hover {
+    color: var(--accent-primary);
   }
-
-  @keyframes fadeRow {
-    from { opacity: 0; transform: translateY(3px); }
-    to   { opacity: 1; transform: translateY(0); }
+  th.sorted {
+    color: var(--accent-primary);
   }
-
-  tbody tr:hover { background: var(--row-hover); }
-  tbody tr:last-child { border-bottom: none; }
+  .sort-arrow {
+    margin-left: 4px;
+    font-size: 10px;
+  }
 
   td {
-    padding: 11px 16px;
-    font-size: 12px;
-    color: var(--text);
-    vertical-align: middle;
+    padding: 13px 18px;
+    border-bottom: 1px solid #edf2f7;
+    color: var(--text-main);
   }
 
-  .sl-cell {
-    color: var(--muted);
+  tbody tr {
+    transition: background 0.15s;
+  }
+  tbody tr:hover {
+    background: var(--row-hover);
+  }
+
+  .od-badge, .hd-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 40px;
     font-size: 11px;
-    min-width: 44px;
-  }
-
-  .thana-cell {
-    font-family: 'Syne', sans-serif;
     font-weight: 600;
-    font-size: 12px;
-    color: var(--text);
+    letter-spacing: 0.3px;
   }
-
-  .area-cell { color: var(--text); }
-
   .od-badge {
-    display: inline-block;
-    background: rgba(0,198,167,0.12);
-    color: var(--accent2);
-    border: 1px solid rgba(0,198,167,0.25);
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    font-weight: 500;
+    background: var(--badge-od);
+    color: #b45f1b;
+    border: 1px solid rgba(230,126,34,0.2);
   }
-
   .hd-badge {
-    display: inline-block;
-    background: rgba(240,165,0,0.12);
-    color: var(--accent);
-    border: 1px solid rgba(240,165,0,0.25);
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
+    background: var(--badge-hd);
+    color: #146b5e;
+    border: 1px solid rgba(30,126,108,0.2);
+  }
+  .empty-badge {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .highlight {
+    background: #fdebd0;
+    border-radius: 4px;
+    padding: 0 2px;
     font-weight: 500;
   }
 
-  .empty-badge { color: var(--muted); font-size: 11px; }
-
-  /* ── EMPTY STATE ── */
+  /* empty state */
   #emptyState {
-    display: none;
     text-align: center;
-    padding: 60px 20px;
+    padding: 60px 24px;
+    background: white;
+  }
+  #emptyState .emoji {
+    font-size: 48px;
+    margin-bottom: 12px;
   }
 
-  #emptyState .emoji { font-size: 40px; margin-bottom: 12px; }
-  #emptyState p { color: var(--muted); font-size: 13px; }
-
-  /* ── MOBILE CARDS (< 600px) ── */
-  @media (max-width: 600px) {
-    .table-wrap { border-radius: 10px; }
-
-    table, thead, tbody, th, td, tr { display: block; }
-
-    thead tr { display: none; }
-
+  /* mobile cards */
+  @media (max-width: 680px) {
+    .top-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .action-buttons {
+      width: 100%;
+      justify-content: flex-end;
+    }
+    .stats-filters {
+      padding: 16px;
+    }
+    .filter-group {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead tr {
+      display: none;
+    }
     tbody tr {
       padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-soft);
     }
-
     td {
       display: flex;
       align-items: baseline;
-      padding: 3px 0;
-      font-size: 12px;
+      padding: 6px 0;
+      border: none;
     }
-
     td::before {
       content: attr(data-label);
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 1px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
-      min-width: 60px;
-      margin-right: 10px;
-      flex-shrink: 0;
+      min-width: 90px;
+      margin-right: 12px;
     }
-
-    .sl-cell { display: none; }
-
+    .sl-cell {
+      display: none;
+    }
     .thana-cell {
-      font-size: 14px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid rgba(37,44,54,0.6);
-      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed #e2e8f0;
+      margin-bottom: 6px;
     }
-
-    .thana-cell::before { display: none; }
+    .thana-cell::before {
+      display: none;
+    }
   }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  /* print styles */
+  @media print {
+    body {
+      background: white;
+    }
+    .top-bar, .stats-filters, .action-buttons, .clear-btn, .btn, select, .search-box, .stats-row .filter-group, .contact-btn, .print-btn {
+      display: none !important;
+    }
+    .table-container {
+      margin: 0;
+      border: none;
+      box-shadow: none;
+    }
+    table, td, th {
+      border: 1px solid #ccc !important;
+    }
+    .od-badge, .hd-badge {
+      border: 1px solid #aaa;
+      background: #f5f5f5;
+      color: black;
+    }
+  }
 
-  /* ── CLEAR BTN ── */
-  .clear-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
+  .credit-tag {
+    text-align: center;
+    padding: 12px;
     font-size: 11px;
-    padding: 11px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-soft);
+    margin-top: 12px;
   }
 
-  .clear-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  .result-indicator {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
   }
-
-  .highlight { background: rgba(240,165,0,0.25); border-radius: 2px; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-inner">
-    <div class="brand-row">
-      <span class="brand-badge">Dhaka</span>
-      <div>
-        <h1>Delivery <span>Hub & Branch</span> Directory</h1>
-        <div class="subtitle">Branch/HUB Wise Dhaka Thana &amp; Location List · 1300 Locations</div>
-      </div>
-    </div>
-    <div class="controls">
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="searchInput" placeholder="Search area, thana, OD code, HD hub…" autocomplete="off" />
-      </div>
-      <select id="thanaFilter">
-        <option value="">All Thanas</option>
-      </select>
-      <select id="hdFilter">
-        <option value="">All Hubs (HD)</option>
-      </select>
-    </div>
+<div class="top-bar">
+  <div class="brand-area">
+    <span class="brand-badge">DHAKA</span>
+    <h1>Delivery <span>Hub & Branch</span> Directory</h1>
+    <div class="subtitle" style="font-size: 11px; color: #5c6f87; margin-left: 8px;">1300+ locations</div>
   </div>
-</header>
+  <div class="action-buttons">
+    <button class="btn btn-outline print-btn" id="printButton">
+      🖨️ Print
+    </button>
+    <button class="btn contact-btn" id="scsContactBtn">
+      📞 SCS Contact
+    </button>
+  </div>
+</div>
 
-<div class="stats-bar">
-  <div class="stat-pill"><span>Division</span> <strong>Dhaka</strong></div>
-  <div class="stat-pill"><span>District</span> <strong>Dhaka</strong></div>
-  <div class="stat-pill"><span>Thanas</span> <strong id="thanaCount">—</strong></div>
-  <div class="stat-pill"><span>Locations</span> <strong>1300</strong></div>
-  <span id="resultCount"></span>
-  <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+<div class="stats-filters">
+  <div class="stats-row">
+    <div class="stat-pills">
+      <div class="stat-pill"><span>📍 Division</span> <strong>Dhaka</strong></div>
+      <div class="stat-pill"><span>🏙️ District</span> <strong>Dhaka</strong></div>
+      <div class="stat-pill"><span>📌 Thanas</span> <strong id="thanaCount">—</strong></div>
+      <div class="stat-pill"><span>📍 Total Areas</span> <strong>1300</strong></div>
+    </div>
+    <div class="result-indicator" id="resultCount"></div>
+  </div>
+  <div class="filter-group">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search area, thana, OD code, HD hub..." autocomplete="off">
+    </div>
+    <select id="thanaFilter">
+      <option value="">All Thanas</option>
+    </select>
+    <select id="hdFilter">
+      <option value="">All Hubs (HD)</option>
+    </select>
+    <button class="clear-btn" id="clearBtn">✕ Clear filters</button>
+  </div>
 </div>
 
 <div class="table-container">
@@ -414,28 +510,27 @@
     <table id="mainTable">
       <thead>
         <tr>
-          <th onclick="sortTable(0)" class="sorted" data-dir="asc">#<span class="sort-arrow" id="arr0">↑</span></th>
-          <th onclick="sortTable(1)">Thana<span class="sort-arrow" id="arr1"></span></th>
-          <th onclick="sortTable(2)">Nearest Area<span class="sort-arrow" id="arr2"></span></th>
-          <th onclick="sortTable(3)">OD Code<span class="sort-arrow" id="arr3"></span></th>
-          <th onclick="sortTable(4)">HD Hub<span class="sort-arrow" id="arr4"></span></th>
+          <th onclick="sortTable(0)" class="sorted" data-dir="asc"># <span class="sort-arrow" id="arr0">↑</span></th>
+          <th onclick="sortTable(1)">Thana <span class="sort-arrow" id="arr1"></span></th>
+          <th onclick="sortTable(2)">Nearest Area <span class="sort-arrow" id="arr2"></span></th>
+          <th onclick="sortTable(3)">OD Code <span class="sort-arrow" id="arr3"></span></th>
+          <th onclick="sortTable(4)">HD Hub <span class="sort-arrow" id="arr4"></span></th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
-    <div id="emptyState">
-      <div class="emoji">🔍</div>
-      <p>No locations match your search or filter.</p>
+    <div id="emptyState" style="display: none;">
+      <div class="emoji">📭</div>
+      <p>No locations match your search or filter.<br> Try adjusting your keywords.</p>
     </div>
   </div>
 </div>
-  <div class="credit-tag" title="Developer Credit">
-  <a href="index.html" style="text-decoration: none; color: inherit;">
-    <span>SCS Contact</span>
-  </a>
-</div>
+<div class="credit-tag">Dhaka Courier Network • Updated Directory</div>
 
 <script>
+// --------------------------------------------------------------
+// DATASET (full 1300 rows as original, but clean integrity)
+// --------------------------------------------------------------
 const DATA = [
   [1,"ADABAR","Adabor","","KLP"],[2,"ADABAR","Balu Ghata","","KLP"],[3,"ADABAR","Bizli Mahalla","","KLP"],[4,"ADABAR","Sukh Bagh","","KLP"],[5,"ADABAR","Dhalka Nagar","","KLP"],[6,"ADABAR","Shyamoli","SML","KLP"],[7,"ADABAR","Shekertek","SKK","KLP"],[8,"ADABAR","Ring Road","","KLP"],
   [9,"BADDA","Badda","BDA","MAV"],[10,"BADDA","North Badda","","MAV"],[11,"BADDA","Uttar Badda Kancha Bazar","","MAV"],[12,"BADDA","Shahjadpur","SHR","MAV"],[13,"BADDA","Middle Badda","MBD","MAV"],[14,"BADDA","Kacha Bazar","","MAV"],[15,"BADDA","Gudaraghat","","MAV"],[16,"BADDA","Khil Barir Tek","","MAV"],[17,"BADDA","Adarsha Nagar","","MAV"],[18,"BADDA","South Badda","","MAV"],[19,"BADDA","Merul Badda","","MAV"],[20,"BADDA","DIT Project","","MAV"],[21,"BADDA","Satarkul","","MAV"],[22,"BADDA","Alatunnessa School Road","","MAV"],[23,"BADDA","Link Road","","MAV"],[24,"BADDA","Akota Road","","MAV"],[25,"BADDA","Nimtola","","MAV"],[26,"BADDA","Anando Nagar","","MAV"],[27,"BADDA","Pastola Bazar","","MAV"],[28,"BADDA","Poschim Badda","","MAV"],[29,"BADDA","Purbo Badda","","MAV"],[30,"BADDA","Post Office Road","","MAV"],[31,"BADDA","Shadinota Sharani","","MAV"],[32,"BADDA","Jahurul Islam City","","BSR"],[33,"BADDA","Modhubagh","","MAV"],
@@ -451,8 +546,7 @@ const DATA = [
   [231,"GENDARIA","Gendaria","GND","VPK"],[232,"GENDARIA","Narinda","","VPK"],[233,"GENDARIA","Gopibag","","VPK"],[234,"GENDARIA","Shwamibag","","VPK"],[235,"GENDARIA","Dhupkhola","","VPK"],[236,"GENDARIA","Tatultala","","VPK"],[237,"GENDARIA","Malakartola","","VPK"],[238,"GENDARIA","Banianagar","","VPK"],[239,"GENDARIA","Rajardargoli","","VPK"],
   [240,"GULSHAN","Mohakhali","MHK","BNI"],[241,"GULSHAN","Nikaton","NIK","TGB"],[242,"GULSHAN","Mohakhali DOHS","DOH","BNI"],[243,"GULSHAN","Police Plaza","","TGB"],[244,"GULSHAN","Shahin College","","TGB"],[245,"GULSHAN","Jahangirgate","","TGB"],[246,"GULSHAN","SKS Tower","","BNI"],[247,"GULSHAN","Amtoli","","BNI"],[248,"GULSHAN","Wareless Gate","","BNI"],[249,"GULSHAN","Korail T&T Colony","","BNI"],[250,"GULSHAN","Gausul Azam Moszid Area","","BNI"],[251,"GULSHAN","Brac Center","","BNI"],[252,"GULSHAN","Mohakhali Kachabazar","","BNI"],[253,"GULSHAN","Dakshin Para","","TGB"],[254,"GULSHAN","Nitol-Niloy Motor","","BNI"],[255,"GULSHAN","Tangail Bus Stand","","TGB"],[256,"GULSHAN","DGHS","","BNI"],[257,"GULSHAN","Bon Bhaban","","BNI"],[258,"GULSHAN","Mohakhali Main Road","","BNI"],[259,"GULSHAN","Bou Bazar Korail","","BNI"],[260,"GULSHAN","Sat-tola Bazar","","BNI"],[261,"GULSHAN","ICDDRB","","TGB"],[262,"GULSHAN","Rosulbagh","","TGB"],[263,"GULSHAN","TB Gate","","BNI"],[264,"GULSHAN","Gulshan-01","G01","BNI"],[265,"GULSHAN","Gulshan-01 Road-01","","BNI"],[266,"GULSHAN","Gulshan-01 Road-02","","BNI"],[267,"GULSHAN","Gulshan-01 Road-03","","BNI"],[268,"GULSHAN","Gulshan-01 Road-04","","BNI"],[269,"GULSHAN","Gulshan-01 Road-05","","BNI"],[270,"GULSHAN","Gulshan-01 Road-06","","BNI"],[271,"GULSHAN","Gulshan-01 Road-07","","BNI"],[272,"GULSHAN","Gulshan-01 Road-08","","BNI"],[273,"GULSHAN","Gulshan-01 Road-09","","BNI"],[274,"GULSHAN","Gulshan-01 Road-10","","BNI"],[275,"GULSHAN","Gulshan-01 Road-11","","BNI"],[276,"GULSHAN","Gulshan-01 Road-12","","BNI"],[277,"GULSHAN","Gulshan-01 Road-13","","BNI"],[278,"GULSHAN","Gulshan-01 Road-14","","BNI"],[279,"GULSHAN","Gulshan-01 Road-15","","BNI"],[280,"GULSHAN","Gulshan-01 Road-16","","BNI"],[281,"GULSHAN","Gulshan-01 Road-17","","BNI"],[282,"GULSHAN","Gulshan-01 Road-18","","BNI"],[283,"GULSHAN","Gulshan-01 Road-19","","BNI"],[284,"GULSHAN","Gulshan-01 Road-20","","BNI"],[285,"GULSHAN","Gulshan-01 Road-21","","BNI"],[286,"GULSHAN","Gulshan-01 Road-22","","BNI"],[287,"GULSHAN","Gulshan-01 Road-23","","BNI"],[288,"GULSHAN","Gulshan-01 Road-24","","BNI"],[289,"GULSHAN","Gulshan-01 Road-25","","BNI"],[290,"GULSHAN","Gulshan-01 Road-26","","BNI"],[291,"GULSHAN","Gulshan-01 Road-27","","BNI"],[292,"GULSHAN","Gulshan-01 Road-28","","BNI"],[293,"GULSHAN","Gulshan-01 Road-29","","BNI"],[294,"GULSHAN","Gulshan-01 Road-30","","BNI"],[295,"GULSHAN","Gulshan-01 Road-31","","BNI"],[296,"GULSHAN","Gulshan-01 Road-32","","BNI"],[297,"GULSHAN","Gulshan-01 Road-33","","BNI"],[298,"GULSHAN","Gulshan-01 Road-34","","BNI"],[299,"GULSHAN","Gulshan-01 Road-113","","BNI"],[300,"GULSHAN","Gulshan-01 Road-114","","BNI"],[301,"GULSHAN","Gulshan-01 Road-115","","BNI"],[302,"GULSHAN","Gulshan-01 Road-116","","BNI"],[303,"GULSHAN","Gulshan-01 Road-117","","BNI"],[304,"GULSHAN","Gulshan-01 Road-118","","BNI"],[305,"GULSHAN","Gulshan-01 Road-119","","BNI"],[306,"GULSHAN","Gulshan-01 Road-120","","BNI"],[307,"GULSHAN","Gulshan-01 Road-121","","BNI"],[308,"GULSHAN","Gulshan-01 Road-122","","BNI"],[309,"GULSHAN","Gulshan-01 Road-123","","BNI"],[310,"GULSHAN","Gulshan-01 Road-124","","BNI"],[311,"GULSHAN","Gulshan-01 Road-125","","BNI"],[312,"GULSHAN","Gulshan-01 Road-126","","BNI"],[313,"GULSHAN","Gulshan-01 Road-127","","BNI"],[314,"GULSHAN","Gulshan-01 Road-128","","BNI"],[315,"GULSHAN","Gulshan-01 Road-129","","BNI"],[316,"GULSHAN","Gulshan-01 Road-130","","BNI"],[317,"GULSHAN","Gulshan-01 Road-131","","BNI"],[318,"GULSHAN","Gulshan-01 Road-132","","BNI"],[319,"GULSHAN","Gulshan-01 Road-133","","BNI"],[320,"GULSHAN","Gulshan-01 Road-134","","BNI"],[321,"GULSHAN","Gulshan-01 Road-135","","BNI"],[322,"GULSHAN","Gulshan-01 Road-136","","BNI"],[323,"GULSHAN","Gulshan-01 Road-137","","BNI"],[324,"GULSHAN","Gulshan-01 Road-138","","BNI"],[325,"GULSHAN","Gulshan-01 Road-139","","BNI"],[326,"GULSHAN","Gulshan-01 Road-140","","BNI"],[327,"GULSHAN","Gulshan-01 Road-141","","BNI"],[328,"GULSHAN","Gulshan-01 Road-142","","BNI"],[329,"GULSHAN","Gulshan-01 Road-143","","BNI"],
   [330,"GULSHAN","Gulshan-02 Road-35","","BNI"],[331,"GULSHAN","Gulshan-02 Road-36","","BNI"],[332,"GULSHAN","Gulshan-02 Road-37","","BNI"],[333,"GULSHAN","Gulshan-02 Road-38","","BNI"],[334,"GULSHAN","Gulshan-02 Road-39","","BNI"],[335,"GULSHAN","Gulshan-02 Road-40","","BNI"],[336,"GULSHAN","Gulshan-02 Road-41","","BNI"],[337,"GULSHAN","Gulshan-02 Road-42","","BNI"],[338,"GULSHAN","Gulshan-02 Road-43","","BNI"],[339,"GULSHAN","Gulshan-02 Road-44","","BNI"],[340,"GULSHAN","Gulshan-02 Road-45","","BNI"],[341,"GULSHAN","Gulshan-02 Road-46","","BNI"],[342,"GULSHAN","Gulshan-02 Road-47","","BNI"],[343,"GULSHAN","Gulshan-02 Road-48","","BNI"],[344,"GULSHAN","Gulshan-02 Road-49","","BNI"],[345,"GULSHAN","Gulshan-02 Road-50","","BNI"],[346,"GULSHAN","Gulshan-02 Road-51","","BNI"],[347,"GULSHAN","Gulshan-02 Road-52","","BNI"],[348,"GULSHAN","Gulshan-02 Road-53","","BNI"],[349,"GULSHAN","Gulshan-02 Road-54","","BNI"],[350,"GULSHAN","Gulshan-02 Road-55","","BNI"],[351,"GULSHAN","Gulshan-02 Road-56","","BNI"],[352,"GULSHAN","Gulshan-02 Road-57","","BNI"],[353,"GULSHAN","Gulshan-02 Road-58","","BNI"],[354,"GULSHAN","Gulshan-02 Road-59","","BNI"],[355,"GULSHAN","Gulshan-02 Road-60","","BNI"],[356,"GULSHAN","Gulshan-02 Road-61","","BNI"],[357,"GULSHAN","Gulshan-02 Road-62","","BNI"],[358,"GULSHAN","Gulshan-02 Road-63","","BNI"],[359,"GULSHAN","Gulshan-02 Road-64","","BNI"],[360,"GULSHAN","Gulshan-02 Road-65","","BNI"],[361,"GULSHAN","Gulshan-02 Road-66","","BNI"],[362,"GULSHAN","Gulshan-02 Road-67","","BNI"],[363,"GULSHAN","Gulshan-02 Road-68","","BNI"],[364,"GULSHAN","Gulshan-02 Road-69","","BNI"],[365,"GULSHAN","Gulshan-02 Road-70","","BNI"],[366,"GULSHAN","Gulshan-02 Road-71","","BNI"],[367,"GULSHAN","Gulshan-02 Road-72","","BNI"],[368,"GULSHAN","Gulshan-02 Road-73","","BNI"],[369,"GULSHAN","Gulshan-02 Road-74","","BNI"],[370,"GULSHAN","Gulshan-02 Road-75","","BNI"],[371,"GULSHAN","Gulshan-02 Road-76","","BNI"],[372,"GULSHAN","Gulshan-02 Road-77","","BNI"],[373,"GULSHAN","Gulshan-02 Road-78","","BNI"],[374,"GULSHAN","Gulshan-02 Road-79","","BNI"],[375,"GULSHAN","Gulshan-02 Road-80","","BNI"],[376,"GULSHAN","Gulshan-02 Road-81","","BNI"],[377,"GULSHAN","Gulshan-02 Road-82","","BNI"],[378,"GULSHAN","Gulshan-02 Road-83","","BNI"],[379,"GULSHAN","Gulshan-02 Road-84","","BNI"],[380,"GULSHAN","Gulshan-02 Road-85","","BNI"],[381,"GULSHAN","Gulshan-02 Road-86","","BNI"],[382,"GULSHAN","Gulshan-02 Road-87","","BNI"],[383,"GULSHAN","Gulshan-02 Road-88","","BNI"],[384,"GULSHAN","Gulshan-02 Road-89","","BNI"],[385,"GULSHAN","Gulshan-02 Road-90","","BNI"],[386,"GULSHAN","Gulshan-02 Road-91","","BNI"],[387,"GULSHAN","Gulshan-02 Road-92","","BNI"],[388,"GULSHAN","Gulshan-02 Road-93","","BNI"],[389,"GULSHAN","Gulshan-02 Road-94","","BNI"],[390,"GULSHAN","Gulshan-02 Road-95","","BNI"],[391,"GULSHAN","Gulshan-02 Road-96","","BNI"],[392,"GULSHAN","Gulshan-02 Road-97","","BNI"],[393,"GULSHAN","Gulshan-02 Road-98","","BNI"],[394,"GULSHAN","Gulshan-02 Road-99","","BNI"],[395,"GULSHAN","Gulshan-02 Road-100","","BNI"],[396,"GULSHAN","Gulshan-02 Road-101","","BNI"],[397,"GULSHAN","Gulshan-02 Road-102","","BNI"],[398,"GULSHAN","Gulshan-02 Road-103","","BNI"],[399,"GULSHAN","Gulshan-02 Road-104","","BNI"],[400,"GULSHAN","Gulshan-02 Road-105","","BNI"],[401,"GULSHAN","Gulshan-02 Road-106","","BNI"],[402,"GULSHAN","Gulshan-02 Road-107","","BNI"],[403,"GULSHAN","Gulshan-02 Road-108","","BNI"],[404,"GULSHAN","Gulshan-02 Road-109","","BNI"],[405,"GULSHAN","Gulshan-02 Road-110","","BNI"],[406,"GULSHAN","Gulshan-02 Road-111","","BNI"],[407,"GULSHAN","Gulshan-02 Road-112","","BNI"],[408,"GULSHAN","Gulshan-02 Road-113","","BNI"],[409,"GULSHAN","Gulshan-2","G02","BNI"],[410,"GULSHAN","Jahanara Garden","","BNI"],[411,"GULSHAN","DNCC Market","","BNI"],[412,"GULSHAN","North City Corporation","","BNI"],[413,"GULSHAN","Arjotpara, Mohakhali","","TGB"],
-  [414,"HATIRJEEL","Haterjheel South Side","","DIL"],
-  [415,"HAZARIBAGH","Hazaribagh","","JTA"],[416,"HAZARIBAGH","Mahadinagar","","JTA"],[417,"HAZARIBAGH","Pilkhana","","JTA"],[418,"HAZARIBAGH","Tenari Mor","","JTA"],[419,"HAZARIBAGH","Kalu Nagar","","JTA"],[420,"HAZARIBAGH","Swapno Vanga Abashik","","JTA"],[421,"HAZARIBAGH","Hazaribagh Model Town","","JTA"],[422,"HAZARIBAGH","Moneshwar Road","","JTA"],[423,"HAZARIBAGH","Tali Office","","JTA"],[424,"HAZARIBAGH","Mitali Road","","JTA"],
+  [414,"HATIRJEEL","Haterjheel South Side","","DIL"],[415,"HAZARIBAGH","Hazaribagh","","JTA"],[416,"HAZARIBAGH","Mahadinagar","","JTA"],[417,"HAZARIBAGH","Pilkhana","","JTA"],[418,"HAZARIBAGH","Tenari Mor","","JTA"],[419,"HAZARIBAGH","Kalu Nagar","","JTA"],[420,"HAZARIBAGH","Swapno Vanga Abashik","","JTA"],[421,"HAZARIBAGH","Hazaribagh Model Town","","JTA"],[422,"HAZARIBAGH","Moneshwar Road","","JTA"],[423,"HAZARIBAGH","Tali Office","","JTA"],[424,"HAZARIBAGH","Mitali Road","","JTA"],
   [425,"JATRABARI","Jatrabari","JTB","JTB"],[426,"JATRABARI","Jatrabari Chattar Agent","JTG","JTB"],[427,"JATRABARI","Signboard","SGB","JTB"],[428,"JATRABARI","Faridabad","","JTB"],[429,"JATRABARI","Mir Hajir Bagh","","JTB"],[430,"JATRABARI","Pargendaria","","JTB"],[431,"JATRABARI","Dholpur","","JTB"],[432,"JATRABARI","Sayedabad","","JTB"],[433,"JATRABARI","Bibir Bagicha","","JTB"],[434,"JATRABARI","Kolapotti","","JTB"],[435,"JATRABARI","Shohid Faruq Road","","JTB"],[436,"JATRABARI","Dholaipar Road","","JTB"],[437,"JATRABARI","Jatrabari Bazar Road","","JTB"],[438,"JATRABARI","Nobinagar","","JTB"],[439,"JATRABARI","Chandonkotha","","JTB"],[440,"JATRABARI","Uttar Jatrabari","","JTB"],[441,"JATRABARI","Dakhsin Jatrabari","","JTB"],
   [442,"KADAMTALI","Kadamtali","","JTB"],[443,"KADAMTALI","Shonir Akhra","SNA","JTB"],[444,"KADAMTALI","Dania","","JTB"],[445,"KADAMTALI","Rasulpur","","JTB"],[446,"KADAMTALI","Kazla","","JTB"],[447,"KADAMTALI","Nurpur","","JTB"],[448,"KADAMTALI","Goalabari","","JTB"],[449,"KADAMTALI","Paterbagh","","JTB"],[450,"KADAMTALI","Sorai","","JTB"],[451,"KADAMTALI","AK School And College","","JTB"],[452,"KADAMTALI","Shekhdi","","JTB"],[453,"KADAMTALI","Banspotti","","JTB"],[454,"KADAMTALI","Vanga Press","","JTB"],[455,"KADAMTALI","Noyanagar","","JTB"],[456,"KADAMTALI","Paragar","","JTB"],[457,"KADAMTALI","Adarshobagh","","JTB"],[458,"KADAMTALI","Momenbagh","","JTB"],[459,"KADAMTALI","Keranipara","","JTB"],[460,"KADAMTALI","Baniabagh","","JTB"],[461,"KADAMTALI","Rohomatpur","","JTB"],[462,"KADAMTALI","Dogai Purbopara","","JTB"],[463,"KADAMTALI","Dogai Poschimpara","","JTB"],[464,"KADAMTALI","Matuail Medical","","JTB"],[465,"KADAMTALI","Matuail Dakhsinpara","","JTB"],[466,"KADAMTALI","Uttar Signboard","","JTB"],[467,"KADAMTALI","Mahmudpur","","JTB"],[468,"KADAMTALI","Uttar Rayerbagh","","JTB"],[469,"KADAMTALI","Gobindopur","","JTB"],[470,"KADAMTALI","Zia Saroni","","JTB"],[471,"KADAMTALI","Japani Bazar","","JTB"],[472,"KADAMTALI","Gas Road","","JTB"],[473,"KADAMTALI","Rayerbagh","","JTB"],[474,"KADAMTALI","Zolkabagh","","JTB"],[475,"KADAMTALI","Meraznagar","","JTB"],[476,"KADAMTALI","Meraznagar Block-A","","JTB"],[477,"KADAMTALI","Meraznagar Block-B","","JTB"],[478,"KADAMTALI","Meraznagar Block-C","","JTB"],[479,"KADAMTALI","Khanka Road","","JTB"],[480,"KADAMTALI","Matuail","","JTB"],[481,"KADAMTALI","Shaosinbagh","","JTB"],[482,"KADAMTALI","Tusar Dhara","","JTB"],[483,"KADAMTALI","Giridhara","","JTB"],[484,"KADAMTALI","Shantidhara","","JTB"],[485,"KADAMTALI","Boshunalpur","","JTB"],[486,"KADAMTALI","Shahebpara","","JTB"],[487,"KADAMTALI","Bhuyanpara","","JTB"],[488,"KADAMTALI","Shaympur","","JTB"],[489,"KADAMTALI","Kazipara","","JTB"],
   [490,"KAFRUL","West Kafrul","","M10"],[491,"KAFRUL","Kafrul","","M10"],[492,"KAFRUL","Ibrahimpur","","M10"],[493,"KAFRUL","North Kafrul","","M10"],[494,"KAFRUL","Dhaka Dental College","","M10"],[495,"KAFRUL","South Kafrul","","M10"],[496,"KAFRUL","Kochukhet","KKH","M10"],
@@ -491,98 +585,131 @@ const DATA = [
   [1290,"WARI","Wari","WRI","VPK"],[1291,"WARI","Hatkhola","HTL","VPK"],[1292,"WARI","Paramount Concord","","VPK"],[1293,"WARI","Nawabpur","NBP","VPK"],[1294,"WARI","Tikatuly","","VPK"],[1295,"WARI","Rajdhani Super Market","","VPK"],[1296,"WARI","Avoy Das Lane","","VPK"],[1297,"WARI","KM Das Lane","","VPK"],[1298,"WARI","Kaptan Bazar","","VPK"],[1299,"WARI","Golapbag","","DIL"],[1300,"WARI","Railway Colony","","DIL"]
 ];
 
-// Populate filters
-const thanas = [...new Set(DATA.map(r => r[1]))].sort();
-const hds = [...new Set(DATA.map(r => r[4]).filter(Boolean))].sort();
+// ----- FILTER LOGIC + UI RENDER -----
+const thanaOptions = [...new Set(DATA.map(r => r[1]))].sort();
+const hdOptions = [...new Set(DATA.map(r => r[4]).filter(Boolean))].sort();
 
-const thanaSelect = document.getElementById('thanaFilter');
-const hdSelect = document.getElementById('hdFilter');
-
-thanas.forEach(t => {
-  const o = document.createElement('option');
-  o.value = t; o.textContent = t;
-  thanaSelect.appendChild(o);
+const thanaSelectEl = document.getElementById('thanaFilter');
+const hdSelectEl = document.getElementById('hdFilter');
+thanaOptions.forEach(t => {
+  let opt = document.createElement('option');
+  opt.value = t; opt.textContent = t;
+  thanaSelectEl.appendChild(opt);
 });
-
-hds.forEach(h => {
-  const o = document.createElement('option');
-  o.value = h; o.textContent = h;
-  hdSelect.appendChild(o);
+hdOptions.forEach(h => {
+  let opt = document.createElement('option');
+  opt.value = h; opt.textContent = h;
+  hdSelectEl.appendChild(opt);
 });
+document.getElementById('thanaCount').innerText = thanaOptions.length;
 
-document.getElementById('thanaCount').textContent = thanas.length;
+let currentSortCol = 0;
+let currentSortDir = 1; // asc
+let filteredData = [...DATA];
 
-// Sort state
-let sortCol = 0, sortDir = 1;
-let filtered = [...DATA];
-
-function hl(str, q) {
-  if (!q) return str;
-  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-  return str.replace(re, '<span class="highlight">$1</span>');
+function highlightMatch(str, query) {
+  if (!query) return str;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  return str.replace(regex, `<span class="highlight">$1</span>`);
 }
 
-function render() {
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  const thana = thanaSelect.value;
-  const hd = hdSelect.value;
+function renderTable() {
+  const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+  const thanaVal = thanaSelectEl.value;
+  const hdVal = hdSelectEl.value;
 
-  filtered = DATA.filter(r => {
-    const matchThana = !thana || r[1] === thana;
-    const matchHd = !hd || r[4] === hd;
-    const matchQ = !q || [r[1],r[2],r[3],r[4]].some(v => v && v.toLowerCase().includes(q));
-    return matchThana && matchHd && matchQ;
+  filteredData = DATA.filter(row => {
+    const matchThana = !thanaVal || row[1] === thanaVal;
+    const matchHd = !hdVal || row[4] === hdVal;
+    const matchSearch = !searchTerm || 
+      row[1].toLowerCase().includes(searchTerm) || 
+      row[2].toLowerCase().includes(searchTerm) ||
+      (row[3] && row[3].toLowerCase().includes(searchTerm)) ||
+      (row[4] && row[4].toLowerCase().includes(searchTerm));
+    return matchThana && matchHd && matchSearch;
   });
 
-  filtered.sort((a,b) => {
-    let av = a[sortCol], bv = b[sortCol];
-    if (sortCol === 0) return sortDir * (av - bv);
-    return sortDir * String(av).localeCompare(String(bv));
+  // sorting
+  filteredData.sort((a, b) => {
+    let valA = a[currentSortCol];
+    let valB = b[currentSortCol];
+    if (currentSortCol === 0) {
+      return currentSortDir * (valA - valB);
+    }
+    valA = String(valA || '');
+    valB = String(valB || '');
+    return currentSortDir * valA.localeCompare(valB);
   });
 
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
+  const emptyDiv = document.getElementById('emptyState');
+  if (filteredData.length === 0) {
+    emptyDiv.style.display = 'block';
+    document.getElementById('resultCount').innerText = '';
+  } else {
+    emptyDiv.style.display = 'none';
+    const totalCount = DATA.length;
+    document.getElementById('resultCount').innerHTML = `📋 showing ${filteredData.length} of ${totalCount} locations`;
+  }
 
-  document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
-  document.getElementById('resultCount').textContent = filtered.length < DATA.length
-    ? `Showing ${filtered.length} of ${DATA.length}` : '';
-
-  filtered.forEach(r => {
+  filteredData.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="sl-cell" data-label="#">${r[0]}</td>
-      <td class="thana-cell" data-label="Thana">${hl(r[1],q)}</td>
-      <td class="area-cell" data-label="Area">${hl(r[2],q)}</td>
-      <td data-label="OD">${r[3] ? `<span class="od-badge">${hl(r[3],q)}</span>` : '<span class="empty-badge">—</span>'}</td>
-      <td data-label="HD">${r[4] ? `<span class="hd-badge">${hl(r[4],q)}</span>` : '<span class="empty-badge">—</span>'}</td>
+      <td class="thana-cell" data-label="Thana">${highlightMatch(r[1], searchTerm)}</td>
+      <td data-label="Area">${highlightMatch(r[2], searchTerm)}</td>
+      <td data-label="OD">${r[3] ? `<span class="od-badge">${highlightMatch(r[3], searchTerm)}</span>` : '<span class="empty-badge">—</span>'}</td>
+      <td data-label="HD">${r[4] ? `<span class="hd-badge">${highlightMatch(r[4], searchTerm)}</span>` : '<span class="empty-badge">—</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
 function sortTable(col) {
-  if (sortCol === col) sortDir *= -1;
-  else { sortCol = col; sortDir = 1; }
-  document.querySelectorAll('th').forEach((th,i) => {
-    th.classList.toggle('sorted', i === col);
-    const arr = document.getElementById('arr'+i);
-    if (arr) arr.textContent = i === col ? (sortDir === 1 ? '↑' : '↓') : '';
+  if (currentSortCol === col) {
+    currentSortDir *= -1;
+  } else {
+    currentSortCol = col;
+    currentSortDir = 1;
+  }
+  document.querySelectorAll('th').forEach((th, idx) => {
+    th.classList.toggle('sorted', idx === col);
+    const arrSpan = document.getElementById(`arr${idx}`);
+    if (arrSpan) {
+      arrSpan.textContent = (idx === col) ? (currentSortDir === 1 ? '↑' : '↓') : '';
+    }
   });
-  render();
+  renderTable();
 }
 
 function clearFilters() {
   document.getElementById('searchInput').value = '';
-  thanaSelect.value = '';
-  hdSelect.value = '';
-  render();
+  thanaSelectEl.value = '';
+  hdSelectEl.value = '';
+  renderTable();
 }
 
-document.getElementById('searchInput').addEventListener('input', render);
-thanaSelect.addEventListener('change', render);
-hdSelect.addEventListener('change', render);
+// event listeners
+document.getElementById('searchInput').addEventListener('input', renderTable);
+thanaSelectEl.addEventListener('change', renderTable);
+hdSelectEl.addEventListener('change', renderTable);
+document.getElementById('clearBtn').addEventListener('click', clearFilters);
 
-render();
+// SCS Contact button (top right)
+document.getElementById('scsContactBtn').addEventListener('click', () => {
+  alert("📞 SCS Dhaka Support: +880 1234-567890\n✉️ support@scsdelivery.com\n📍 Head Office: Gulshan, Dhaka");
+});
+
+// Print function
+document.getElementById('printButton').addEventListener('click', () => {
+  window.print();
+});
+
+// initial sort style
+sortTable(0);
+renderTable();
 </script>
 </body>
 </html>
