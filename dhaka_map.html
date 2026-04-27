@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhaka Delivery Hub Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111418;
+    --card: #181d24;
+    --border: #252c36;
+    --accent: #f0a500;
+    --accent2: #00c6a7;
+    --text: #e8eaf0;
+    --muted: #6b7585;
+    --tag-bg: #1e2530;
+    --row-hover: #1c2230;
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0f1520 0%, #0a0c10 60%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .brand-badge {
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(18px, 4vw, 28px);
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  @media (max-width: 700px) {
+    .controls { grid-template-columns: 1fr 1fr; }
+    .search-wrap { grid-column: 1 / -1; }
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  #searchInput {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 11px 14px 11px 40px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #searchInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(240,165,0,0.1);
+  }
+
+  #searchInput::placeholder { color: var(--muted); }
+
+  select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 11px 36px 11px 14px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7585' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: border-color 0.2s;
+    min-width: 150px;
+  }
+
+  select:focus { border-color: var(--accent2); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .stat-pill strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  #resultCount {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── TABLE CONTAINER ── */
+  .table-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 16px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  th:hover { color: var(--accent); }
+  th.sorted { color: var(--accent); }
+
+  th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+  th.sorted .sort-arrow { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(37,44,54,0.5);
+    transition: background 0.15s;
+    animation: fadeRow 0.2s ease both;
+  }
+
+  @keyframes fadeRow {
+    from { opacity: 0; transform: translateY(3px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 11px 16px;
+    font-size: 12px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .sl-cell {
+    color: var(--muted);
+    font-size: 11px;
+    min-width: 44px;
+  }
+
+  .thana-cell {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .area-cell { color: var(--text); }
+
+  .od-badge {
+    display: inline-block;
+    background: rgba(0,198,167,0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(0,198,167,0.25);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  .hd-badge {
+    display: inline-block;
+    background: rgba(240,165,0,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(240,165,0,0.25);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  .empty-badge { color: var(--muted); font-size: 11px; }
+
+  /* ── EMPTY STATE ── */
+  #emptyState {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  #emptyState .emoji { font-size: 40px; margin-bottom: 12px; }
+  #emptyState p { color: var(--muted); font-size: 13px; }
+
+  /* ── MOBILE CARDS (< 600px) ── */
+  @media (max-width: 600px) {
+    .table-wrap { border-radius: 10px; }
+
+    table, thead, tbody, th, td, tr { display: block; }
+
+    thead tr { display: none; }
+
+    tbody tr {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      display: flex;
+      align-items: baseline;
+      padding: 3px 0;
+      font-size: 12px;
+    }
+
+    td::before {
+      content: attr(data-label);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      min-width: 60px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .sl-cell { display: none; }
+
+    .thana-cell {
+      font-size: 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(37,44,54,0.6);
+      margin-bottom: 4px;
+    }
+
+    .thana-cell::before { display: none; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── CLEAR BTN ── */
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .clear-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .highlight { background: rgba(240,165,0,0.25); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-row">
+      <span class="brand-badge">Dhaka</span>
+      <div>
+        <h1>Delivery <span>Hub & Branch</span> Directory</h1>
+        <div class="subtitle">Branch/HUB Wise Dhaka Thana &amp; Location List · 1300 Locations</div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search area, thana, OD code, HD hub…" autocomplete="off" />
+      </div>
+      <select id="thanaFilter">
+        <option value="">All Thanas</option>
+      </select>
+      <select id="hdFilter">
+        <option value="">All Hubs (HD)</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-pill"><span>Division</span> <strong>Dhaka</strong></div>
+  <div class="stat-pill"><span>District</span> <strong>Dhaka</strong></div>
+  <div class="stat-pill"><span>Thanas</span> <strong id="thanaCount">—</strong></div>
+  <div class="stat-pill"><span>Locations</span> <strong>1300</strong></div>
+  <span id="resultCount"></span>
+  <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+</div>
+
+<div class="table-container">
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)" class="sorted" data-dir="asc">#<span class="sort-arrow" id="arr0">↑</span></th>
+          <th onclick="sortTable(1)">Thana<span class="sort-arrow" id="arr1"></span></th>
+          <th onclick="sortTable(2)">Nearest Area<span class="sort-arrow" id="arr2"></span></th>
+          <th onclick="sortTable(3)">OD Code<span class="sort-arrow" id="arr3"></span></th>
+          <th onclick="sortTable(4)">HD Hub<span class="sort-arrow" id="arr4"></span></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="emptyState">
+      <div class="emoji">🔍</div>
+      <p>No locations match your search or filter.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  [1,"ADABAR","Adabor","","KLP"],[2,"ADABAR","Balu Ghata","","KLP"],[3,"ADABAR","Bizli Mahalla","","KLP"],[4,"ADABAR","Sukh Bagh","","KLP"],[5,"ADABAR","Dhalka Nagar","","KLP"],[6,"ADABAR","Shyamoli","SML","KLP"],[7,"ADABAR","Shekertek","SKK","KLP"],[8,"ADABAR","Ring Road","","KLP"],
+  [9,"BADDA","Badda","BDA","MAV"],[10,"BADDA","North Badda","","MAV"],[11,"BADDA","Uttar Badda Kancha Bazar","","MAV"],[12,"BADDA","Shahjadpur","SHR","MAV"],[13,"BADDA","Middle Badda","MBD","MAV"],[14,"BADDA","Kacha Bazar","","MAV"],[15,"BADDA","Gudaraghat","","MAV"],[16,"BADDA","Khil Barir Tek","","MAV"],[17,"BADDA","Adarsha Nagar","","MAV"],[18,"BADDA","South Badda","","MAV"],[19,"BADDA","Merul Badda","","MAV"],[20,"BADDA","DIT Project","","MAV"],[21,"BADDA","Satarkul","","MAV"],[22,"BADDA","Alatunnessa School Road","","MAV"],[23,"BADDA","Link Road","","MAV"],[24,"BADDA","Akota Road","","MAV"],[25,"BADDA","Nimtola","","MAV"],[26,"BADDA","Anando Nagar","","MAV"],[27,"BADDA","Pastola Bazar","","MAV"],[28,"BADDA","Poschim Badda","","MAV"],[29,"BADDA","Purbo Badda","","MAV"],[30,"BADDA","Post Office Road","","MAV"],[31,"BADDA","Shadinota Sharani","","MAV"],[32,"BADDA","Jahurul Islam City","","BSR"],[33,"BADDA","Modhubagh","","MAV"],
+  [34,"BANANI","Banani","BNI","BNI"],[35,"BANANI","Banani Bazar","","BNI"],[36,"BANANI","Koborsthan Road","","BNI"],[37,"BANANI","Kamal Atartuk Avenue","","BNI"],[38,"BANANI","Navey Head Quarter","","BNI"],[39,"BANANI","Kakoli","","BNI"],[40,"BANANI","Sainik Club","","BNI"],[41,"BANANI","Banani Block A","","BNI"],[42,"BANANI","Banani DOHS","","BNI"],[43,"BANANI","Chairman Bari","","BNI"],[44,"BANANI","Banani Block B","","BNI"],[45,"BANANI","Banani Block C","","BNI"],[46,"BANANI","Banani Block D","","BNI"],[47,"BANANI","Banani Block E","","BNI"],[48,"BANANI","Banani Block F","","BNI"],[49,"BANANI","Banani Block G","","BNI"],[50,"BANANI","Banani Block H","","BNI"],[51,"BANANI","Banani Block I","","BNI"],[52,"BANANI","Banani Block J","","BNI"],[53,"BANANI","Banani Block K","","BNI"],[54,"BANANI","Banani Block L","","BNI"],
+  [55,"BANGSHAL","Bangshal","","VPK"],[56,"BANGSHAL","North South Road","NSR","VPK"],[57,"BANGSHAL","Malitola","MLT","VPK"],[58,"BANGSHAL","Nawabpur Road","","VPK"],[59,"BANGSHAL","Dolaikhal","","VPK"],[60,"BANGSHAL","Nayabazar","","VPK"],[61,"BANGSHAL","Mahut Tuli","","VPK"],
+  [62,"BHASAN TEK","Bhasan Tek","","M10"],[63,"BHASAN TEK","Dewanpara-Vasantek","","M10"],[64,"BHASAN TEK","Baganbari","","M10"],[65,"BHASAN TEK","Chowdhury Kunjo","","M10"],
+  [66,"BIMAN BANDAR","Biman Bandar","","U15"],[67,"BIMAN BANDAR","Haji Camp","","UTS"],[68,"BIMAN BANDAR","Kaola","","UTS"],[69,"BIMAN BANDAR","Ashkona","ASN","UTS"],[70,"BIMAN BANDAR","Asian City","","UTS"],[71,"BIMAN BANDAR","Dakhin Khilkhet","","UTS"],[72,"BIMAN BANDAR","APBN","","UTS"],[73,"BIMAN BANDAR","RAB-01","","UTS"],[74,"BIMAN BANDAR","Biman Bandar Rail Station","","UTS"],[75,"BIMAN BANDAR","Hazrat Shahjalal International Airport","","U15"],[76,"BIMAN BANDAR","Jashim Uddin","","U15"],[77,"BIMAN BANDAR","Customs House","","U15"],
+  [78,"CANTONMENT","Matikata Dhaka Cant.","MTK","M10"],[79,"CANTONMENT","Manikdi","","M10"],[80,"CANTONMENT","Baronteck","","M10"],[81,"CANTONMENT","Balurghat","","M10"],[82,"CANTONMENT","Kalibari","","M10"],[83,"CANTONMENT","Bangladesh Army Headquarters","","TGB"],[84,"CANTONMENT","Baigertek-ecb Chattar","","M10"],[85,"CANTONMENT","Mastertek-Manikdi","","M10"],[86,"CANTONMENT","Ecb Chattar","","M10"],[87,"CANTONMENT","Aziz Market-Ecb Chattar","","M10"],[88,"CANTONMENT","Nijhum Gate","","M10"],[89,"CANTONMENT","Baf Shaheen","","TGB"],[90,"CANTONMENT","Bns Haji Mohsin","","TGB"],[91,"CANTONMENT","Baf Eagle Hall","","TGB"],[92,"CANTONMENT","Shahid Moinul Road","","TGB"],[93,"CANTONMENT","Shaheed Sharani","","M10"],[94,"CANTONMENT","Sena Malancha","","BNI"],[95,"CANTONMENT","Adamjee Cantonment College","","M10"],[96,"CANTONMENT","Army Officers Club","","M10"],[97,"CANTONMENT","Dhaka Cantonment Post Office","","M10"],[98,"CANTONMENT","Kurmitola","","U15"],[99,"CANTONMENT","CMH","","M10"],[100,"CANTONMENT","Shaheed Ramiz Uddin Gate-Mes","","M10"],[101,"CANTONMENT","Shaheed Ramiz Uddin Cantonment College","","M10"],[102,"CANTONMENT","Kunjolota-Mes","","M10"],[103,"CANTONMENT","Armed Forces Medical Institute-Mes","","M10"],[104,"CANTONMENT","Staff Road Officers Quarters-Mes","","M10"],[105,"CANTONMENT","Mes Park","","M10"],[106,"CANTONMENT","Bijoy Keton-Mes","","M10"],[107,"CANTONMENT","Nokkhotro-Mes","","M10"],[108,"CANTONMENT","Bangladesh University Of Professionals-BUP","","U15"],[109,"CANTONMENT","Mirpur Cantonment Public School & College","","M10"],[110,"CANTONMENT","MIST","","M10"],[111,"CANTONMENT","Cantonment All Area","","M10"],[112,"CANTONMENT","Mirpur Cantonment","","M10"],
+  [113,"CHAK BAZAR","Chawkbazar","CKZ","VPK"],[114,"CHAK BAZAR","Maulavibazar","","VPK"],[115,"CHAK BAZAR","Naya Bazar","","VPK"],[116,"CHAK BAZAR","Tatibazar","","VPK"],[117,"CHAK BAZAR","Luxmi Bazar","","VPK"],[118,"CHAK BAZAR","Tipu Sultan Road","","VPK"],[119,"CHAK BAZAR","Siddik Bazar","","VPK"],[120,"CHAK BAZAR","Bakshibazar","","VPK"],[121,"CHAK BAZAR","Armanitola","","VPK"],[122,"CHAK BAZAR","Chak Moghaltoli","","VPK"],[123,"CHAK BAZAR","Alauddin Road","","VPK"],[124,"CHAK BAZAR","Islambag","","VPK"],[125,"CHAK BAZAR","Mitford","","VPK"],[126,"CHAK BAZAR","Shakhari Bazar","","VPK"],[127,"CHAK BAZAR","Thatari Bazar","","VPK"],[128,"CHAK BAZAR","Katherpol","","VPK"],[129,"CHAK BAZAR","Nazira Bazar","","VPK"],[130,"CHAK BAZAR","Kaltabazar","","VPK"],[131,"CHAK BAZAR","Alubazar","","VPK"],[132,"CHAK BAZAR","Tantibazar","","VPK"],
+  [133,"DARUS SALAM","Darus Salam","","KLP"],[134,"DARUS SALAM","Gabtoli","GBT","KLP"],[135,"DARUS SALAM","Kallayanpur","KLP","KLP"],[136,"DARUS SALAM","Kacha Bazar","","KLP"],[137,"DARUS SALAM","Ibn Sina Hospital","","KLP"],[138,"DARUS SALAM","R.B Telecom","","KLP"],[139,"DARUS SALAM","Lalkuthi","","KLP"],[140,"DARUS SALAM","Veribadh Area","","KLP"],[141,"DARUS SALAM","Amin Bazar","","KLP"],[142,"DARUS SALAM","Technical Mor","","KLP"],[143,"DARUS SALAM","Bagbari","","KLP"],
+  [144,"DEMRA","Konapara, Demra","KON","JTB"],[145,"DEMRA","Staff Quarter Demra","SQD","JTB"],[146,"DEMRA","Boro Vanga","","JTB"],[147,"DEMRA","Dogai Purbo Para","","JTB"],[148,"DEMRA","Amulia","","JTB"],[149,"DEMRA","Tengra Amtola","","JTB"],[150,"DEMRA","Kanchpur Bazar","","JTB"],[151,"DEMRA","Kanchpur","","JTB"],[152,"DEMRA","Bisic","","JTB"],[153,"DEMRA","Tarabo Bazar","","JTB"],[154,"DEMRA","Noya Para","","JTB"],[155,"DEMRA","Kutubpur","","JTB"],[156,"DEMRA","Uttar Kutubpur","","JTB"],[157,"DEMRA","Basher Pull","","JTB"],[158,"DEMRA","Bamuail Bazar","","JTB"],[159,"DEMRA","Sarulia","","JTB"],[160,"DEMRA","Rani Mohol","","JTB"],[161,"DEMRA","Demra Bazar","","JTB"],[162,"DEMRA","Haji Nagar","","JTB"],[163,"DEMRA","Box Nagar","","JTB"],[164,"DEMRA","Badsha Mia Road","","JTB"],[165,"DEMRA","Muslim Nagar","","JTB"],
+  [166,"DHANMONDI","Jhigatola","JTA","JTA"],[167,"DHANMONDI","Shikder Medical","","JTA"],[168,"DHANMONDI","Notun Rasta Jhigatola","","JTA"],[169,"DHANMONDI","Poschim Dhanmondi","","JTA"],[170,"DHANMONDI","West Dhanmondi","","JTA"],[171,"DHANMONDI","Rayerbazar","","JTA"],[172,"DHANMONDI","Sultangonj Road","","JTA"],[173,"DHANMONDI","Modhubazar","","JTA"],[174,"DHANMONDI","Boraikhali","","JTA"],[175,"DHANMONDI","Jafrabad","","JTA"],[176,"DHANMONDI","Pulpar","","JTA"],[177,"DHANMONDI","Ibn Sina Hospital","","JTA"],[178,"DHANMONDI","Sukrabad","SUK","KLB"],[179,"DHANMONDI","Dhanmondi - Road 3","","JTA"],[180,"DHANMONDI","Shankar","","JTA"],[181,"DHANMONDI","Tallabag","","KLB"],[182,"DHANMONDI","Central Road","","KLB"],[183,"DHANMONDI","Sobhanbag","","KLB"],[184,"DHANMONDI","Dhanmondi Road- 01","","JTA"],[185,"DHANMONDI","Dhanmondi Road- 02","","JTA"],[186,"DHANMONDI","Dhanmondi Road- 03","","JTA"],[187,"DHANMONDI","Dhanmondi Road- 04","","KLB"],[188,"DHANMONDI","Dhanmondi Road- 05","","KLB"],[189,"DHANMONDI","Dhanmondi Road- 06","","KLB"],[190,"DHANMONDI","Dhanmondi Road- 07","","KLB"],[191,"DHANMONDI","Dhanmondi Road- 08","","KLB"],[192,"DHANMONDI","Dhanmondi Road- 09","","JTA"],[193,"DHANMONDI","Dhanmondi Road- 10","","JTA"],[194,"DHANMONDI","Dhanmondi Road- 11","","JTA"],[195,"DHANMONDI","Dhanmondi Road- 12","","JTA"],[196,"DHANMONDI","Dhanmondi Road- 13","","JTA"],[197,"DHANMONDI","Dhanmondi Road- 14","","JTA"],[198,"DHANMONDI","Dhanmondi Road- 15","","JTA"],[199,"DHANMONDI","Dhanmondi Road- 16","","JTA"],[200,"DHANMONDI","Dhanmondi Road- 3/A","","JTA"],[201,"DHANMONDI","Dhanmondi Road- 4/A","","JTA"],[202,"DHANMONDI","Dhanmondi Road- 5/A","","JTA"],[203,"DHANMONDI","Dhanmondi Road- 6/A","","JTA"],[204,"DHANMONDI","Dhanmondi Road- 7/A","","JTA"],[205,"DHANMONDI","Dhanmondi Road- 8/A","","JTA"],[206,"DHANMONDI","Dhanmondi Road- 9/A","DHM","JTA"],[207,"DHANMONDI","Dhanmondi Road- 10/A","","JTA"],[208,"DHANMONDI","Dhanmondi Road- 11/A","","JTA"],[209,"DHANMONDI","Dhanmondi Road- 12/A","","JTA"],[210,"DHANMONDI","Dhanmondi Road- 13/A","","JTA"],[211,"DHANMONDI","Dhanmondi Road- 14/A","","JTA"],[212,"DHANMONDI","Dhanmondi Road- 15/A","","JTA"],[213,"DHANMONDI","Dhanmondi New Road-6","","KLB"],[214,"DHANMONDI","Dhanmondi New Road-7","","KLB"],[215,"DHANMONDI","Dhanmondi New Road-8","","KLB"],[216,"DHANMONDI","Dhanmondi New Road-9","","JTA"],[217,"DHANMONDI","Dhanmondi New Road-10","","JTA"],[218,"DHANMONDI","Dhanmondi New Road-11","","JTA"],[219,"DHANMONDI","Dhanmondi New Road-12","","JTA"],[220,"DHANMONDI","Dhanmondi New Road-13","","JTA"],[221,"DHANMONDI","Dhanmondi New Road-14","","JTA"],[222,"DHANMONDI","Dhanmondi New Road-15","","JTA"],[223,"DHANMONDI","Dhanmondi New Road-16","","JTA"],[224,"DHANMONDI","Dhanmondi - Rd 27","","JTA"],[225,"DHANMONDI","Dhanmondi - Rd 28","","JTA"],[226,"DHANMONDI","Dhanmondi - Rd 29","","JTA"],[227,"DHANMONDI","Dhanmondi - Old Road-32","","JTA"],[228,"DHANMONDI","Dhanmondi - Old Road-27","","JTA"],[229,"DHANMONDI","Jigatala Post Office","","JTA"],[230,"DHANMONDI","Dhanmondi Staff Quarter","","JTA"],
+  [231,"GENDARIA","Gendaria","GND","VPK"],[232,"GENDARIA","Narinda","","VPK"],[233,"GENDARIA","Gopibag","","VPK"],[234,"GENDARIA","Shwamibag","","VPK"],[235,"GENDARIA","Dhupkhola","","VPK"],[236,"GENDARIA","Tatultala","","VPK"],[237,"GENDARIA","Malakartola","","VPK"],[238,"GENDARIA","Banianagar","","VPK"],[239,"GENDARIA","Rajardargoli","","VPK"],
+  [240,"GULSHAN","Mohakhali","MHK","BNI"],[241,"GULSHAN","Nikaton","NIK","TGB"],[242,"GULSHAN","Mohakhali DOHS","DOH","BNI"],[243,"GULSHAN","Police Plaza","","TGB"],[244,"GULSHAN","Shahin College","","TGB"],[245,"GULSHAN","Jahangirgate","","TGB"],[246,"GULSHAN","SKS Tower","","BNI"],[247,"GULSHAN","Amtoli","","BNI"],[248,"GULSHAN","Wareless Gate","","BNI"],[249,"GULSHAN","Korail T&T Colony","","BNI"],[250,"GULSHAN","Gausul Azam Moszid Area","","BNI"],[251,"GULSHAN","Brac Center","","BNI"],[252,"GULSHAN","Mohakhali Kachabazar","","BNI"],[253,"GULSHAN","Dakshin Para","","TGB"],[254,"GULSHAN","Nitol-Niloy Motor","","BNI"],[255,"GULSHAN","Tangail Bus Stand","","TGB"],[256,"GULSHAN","DGHS","","BNI"],[257,"GULSHAN","Bon Bhaban","","BNI"],[258,"GULSHAN","Mohakhali Main Road","","BNI"],[259,"GULSHAN","Bou Bazar Korail","","BNI"],[260,"GULSHAN","Sat-tola Bazar","","BNI"],[261,"GULSHAN","ICDDRB","","TGB"],[262,"GULSHAN","Rosulbagh","","TGB"],[263,"GULSHAN","TB Gate","","BNI"],[264,"GULSHAN","Gulshan-01","G01","BNI"],[265,"GULSHAN","Gulshan-01 Road-01","","BNI"],[266,"GULSHAN","Gulshan-01 Road-02","","BNI"],[267,"GULSHAN","Gulshan-01 Road-03","","BNI"],[268,"GULSHAN","Gulshan-01 Road-04","","BNI"],[269,"GULSHAN","Gulshan-01 Road-05","","BNI"],[270,"GULSHAN","Gulshan-01 Road-06","","BNI"],[271,"GULSHAN","Gulshan-01 Road-07","","BNI"],[272,"GULSHAN","Gulshan-01 Road-08","","BNI"],[273,"GULSHAN","Gulshan-01 Road-09","","BNI"],[274,"GULSHAN","Gulshan-01 Road-10","","BNI"],[275,"GULSHAN","Gulshan-01 Road-11","","BNI"],[276,"GULSHAN","Gulshan-01 Road-12","","BNI"],[277,"GULSHAN","Gulshan-01 Road-13","","BNI"],[278,"GULSHAN","Gulshan-01 Road-14","","BNI"],[279,"GULSHAN","Gulshan-01 Road-15","","BNI"],[280,"GULSHAN","Gulshan-01 Road-16","","BNI"],[281,"GULSHAN","Gulshan-01 Road-17","","BNI"],[282,"GULSHAN","Gulshan-01 Road-18","","BNI"],[283,"GULSHAN","Gulshan-01 Road-19","","BNI"],[284,"GULSHAN","Gulshan-01 Road-20","","BNI"],[285,"GULSHAN","Gulshan-01 Road-21","","BNI"],[286,"GULSHAN","Gulshan-01 Road-22","","BNI"],[287,"GULSHAN","Gulshan-01 Road-23","","BNI"],[288,"GULSHAN","Gulshan-01 Road-24","","BNI"],[289,"GULSHAN","Gulshan-01 Road-25","","BNI"],[290,"GULSHAN","Gulshan-01 Road-26","","BNI"],[291,"GULSHAN","Gulshan-01 Road-27","","BNI"],[292,"GULSHAN","Gulshan-01 Road-28","","BNI"],[293,"GULSHAN","Gulshan-01 Road-29","","BNI"],[294,"GULSHAN","Gulshan-01 Road-30","","BNI"],[295,"GULSHAN","Gulshan-01 Road-31","","BNI"],[296,"GULSHAN","Gulshan-01 Road-32","","BNI"],[297,"GULSHAN","Gulshan-01 Road-33","","BNI"],[298,"GULSHAN","Gulshan-01 Road-34","","BNI"],[299,"GULSHAN","Gulshan-01 Road-113","","BNI"],[300,"GULSHAN","Gulshan-01 Road-114","","BNI"],[301,"GULSHAN","Gulshan-01 Road-115","","BNI"],[302,"GULSHAN","Gulshan-01 Road-116","","BNI"],[303,"GULSHAN","Gulshan-01 Road-117","","BNI"],[304,"GULSHAN","Gulshan-01 Road-118","","BNI"],[305,"GULSHAN","Gulshan-01 Road-119","","BNI"],[306,"GULSHAN","Gulshan-01 Road-120","","BNI"],[307,"GULSHAN","Gulshan-01 Road-121","","BNI"],[308,"GULSHAN","Gulshan-01 Road-122","","BNI"],[309,"GULSHAN","Gulshan-01 Road-123","","BNI"],[310,"GULSHAN","Gulshan-01 Road-124","","BNI"],[311,"GULSHAN","Gulshan-01 Road-125","","BNI"],[312,"GULSHAN","Gulshan-01 Road-126","","BNI"],[313,"GULSHAN","Gulshan-01 Road-127","","BNI"],[314,"GULSHAN","Gulshan-01 Road-128","","BNI"],[315,"GULSHAN","Gulshan-01 Road-129","","BNI"],[316,"GULSHAN","Gulshan-01 Road-130","","BNI"],[317,"GULSHAN","Gulshan-01 Road-131","","BNI"],[318,"GULSHAN","Gulshan-01 Road-132","","BNI"],[319,"GULSHAN","Gulshan-01 Road-133","","BNI"],[320,"GULSHAN","Gulshan-01 Road-134","","BNI"],[321,"GULSHAN","Gulshan-01 Road-135","","BNI"],[322,"GULSHAN","Gulshan-01 Road-136","","BNI"],[323,"GULSHAN","Gulshan-01 Road-137","","BNI"],[324,"GULSHAN","Gulshan-01 Road-138","","BNI"],[325,"GULSHAN","Gulshan-01 Road-139","","BNI"],[326,"GULSHAN","Gulshan-01 Road-140","","BNI"],[327,"GULSHAN","Gulshan-01 Road-141","","BNI"],[328,"GULSHAN","Gulshan-01 Road-142","","BNI"],[329,"GULSHAN","Gulshan-01 Road-143","","BNI"],
+  [330,"GULSHAN","Gulshan-02 Road-35","","BNI"],[331,"GULSHAN","Gulshan-02 Road-36","","BNI"],[332,"GULSHAN","Gulshan-02 Road-37","","BNI"],[333,"GULSHAN","Gulshan-02 Road-38","","BNI"],[334,"GULSHAN","Gulshan-02 Road-39","","BNI"],[335,"GULSHAN","Gulshan-02 Road-40","","BNI"],[336,"GULSHAN","Gulshan-02 Road-41","","BNI"],[337,"GULSHAN","Gulshan-02 Road-42","","BNI"],[338,"GULSHAN","Gulshan-02 Road-43","","BNI"],[339,"GULSHAN","Gulshan-02 Road-44","","BNI"],[340,"GULSHAN","Gulshan-02 Road-45","","BNI"],[341,"GULSHAN","Gulshan-02 Road-46","","BNI"],[342,"GULSHAN","Gulshan-02 Road-47","","BNI"],[343,"GULSHAN","Gulshan-02 Road-48","","BNI"],[344,"GULSHAN","Gulshan-02 Road-49","","BNI"],[345,"GULSHAN","Gulshan-02 Road-50","","BNI"],[346,"GULSHAN","Gulshan-02 Road-51","","BNI"],[347,"GULSHAN","Gulshan-02 Road-52","","BNI"],[348,"GULSHAN","Gulshan-02 Road-53","","BNI"],[349,"GULSHAN","Gulshan-02 Road-54","","BNI"],[350,"GULSHAN","Gulshan-02 Road-55","","BNI"],[351,"GULSHAN","Gulshan-02 Road-56","","BNI"],[352,"GULSHAN","Gulshan-02 Road-57","","BNI"],[353,"GULSHAN","Gulshan-02 Road-58","","BNI"],[354,"GULSHAN","Gulshan-02 Road-59","","BNI"],[355,"GULSHAN","Gulshan-02 Road-60","","BNI"],[356,"GULSHAN","Gulshan-02 Road-61","","BNI"],[357,"GULSHAN","Gulshan-02 Road-62","","BNI"],[358,"GULSHAN","Gulshan-02 Road-63","","BNI"],[359,"GULSHAN","Gulshan-02 Road-64","","BNI"],[360,"GULSHAN","Gulshan-02 Road-65","","BNI"],[361,"GULSHAN","Gulshan-02 Road-66","","BNI"],[362,"GULSHAN","Gulshan-02 Road-67","","BNI"],[363,"GULSHAN","Gulshan-02 Road-68","","BNI"],[364,"GULSHAN","Gulshan-02 Road-69","","BNI"],[365,"GULSHAN","Gulshan-02 Road-70","","BNI"],[366,"GULSHAN","Gulshan-02 Road-71","","BNI"],[367,"GULSHAN","Gulshan-02 Road-72","","BNI"],[368,"GULSHAN","Gulshan-02 Road-73","","BNI"],[369,"GULSHAN","Gulshan-02 Road-74","","BNI"],[370,"GULSHAN","Gulshan-02 Road-75","","BNI"],[371,"GULSHAN","Gulshan-02 Road-76","","BNI"],[372,"GULSHAN","Gulshan-02 Road-77","","BNI"],[373,"GULSHAN","Gulshan-02 Road-78","","BNI"],[374,"GULSHAN","Gulshan-02 Road-79","","BNI"],[375,"GULSHAN","Gulshan-02 Road-80","","BNI"],[376,"GULSHAN","Gulshan-02 Road-81","","BNI"],[377,"GULSHAN","Gulshan-02 Road-82","","BNI"],[378,"GULSHAN","Gulshan-02 Road-83","","BNI"],[379,"GULSHAN","Gulshan-02 Road-84","","BNI"],[380,"GULSHAN","Gulshan-02 Road-85","","BNI"],[381,"GULSHAN","Gulshan-02 Road-86","","BNI"],[382,"GULSHAN","Gulshan-02 Road-87","","BNI"],[383,"GULSHAN","Gulshan-02 Road-88","","BNI"],[384,"GULSHAN","Gulshan-02 Road-89","","BNI"],[385,"GULSHAN","Gulshan-02 Road-90","","BNI"],[386,"GULSHAN","Gulshan-02 Road-91","","BNI"],[387,"GULSHAN","Gulshan-02 Road-92","","BNI"],[388,"GULSHAN","Gulshan-02 Road-93","","BNI"],[389,"GULSHAN","Gulshan-02 Road-94","","BNI"],[390,"GULSHAN","Gulshan-02 Road-95","","BNI"],[391,"GULSHAN","Gulshan-02 Road-96","","BNI"],[392,"GULSHAN","Gulshan-02 Road-97","","BNI"],[393,"GULSHAN","Gulshan-02 Road-98","","BNI"],[394,"GULSHAN","Gulshan-02 Road-99","","BNI"],[395,"GULSHAN","Gulshan-02 Road-100","","BNI"],[396,"GULSHAN","Gulshan-02 Road-101","","BNI"],[397,"GULSHAN","Gulshan-02 Road-102","","BNI"],[398,"GULSHAN","Gulshan-02 Road-103","","BNI"],[399,"GULSHAN","Gulshan-02 Road-104","","BNI"],[400,"GULSHAN","Gulshan-02 Road-105","","BNI"],[401,"GULSHAN","Gulshan-02 Road-106","","BNI"],[402,"GULSHAN","Gulshan-02 Road-107","","BNI"],[403,"GULSHAN","Gulshan-02 Road-108","","BNI"],[404,"GULSHAN","Gulshan-02 Road-109","","BNI"],[405,"GULSHAN","Gulshan-02 Road-110","","BNI"],[406,"GULSHAN","Gulshan-02 Road-111","","BNI"],[407,"GULSHAN","Gulshan-02 Road-112","","BNI"],[408,"GULSHAN","Gulshan-02 Road-113","","BNI"],[409,"GULSHAN","Gulshan-2","G02","BNI"],[410,"GULSHAN","Jahanara Garden","","BNI"],[411,"GULSHAN","DNCC Market","","BNI"],[412,"GULSHAN","North City Corporation","","BNI"],[413,"GULSHAN","Arjotpara, Mohakhali","","TGB"],
+  [414,"HATIRJEEL","Haterjheel South Side","","DIL"],
+  [415,"HAZARIBAGH","Hazaribagh","","JTA"],[416,"HAZARIBAGH","Mahadinagar","","JTA"],[417,"HAZARIBAGH","Pilkhana","","JTA"],[418,"HAZARIBAGH","Tenari Mor","","JTA"],[419,"HAZARIBAGH","Kalu Nagar","","JTA"],[420,"HAZARIBAGH","Swapno Vanga Abashik","","JTA"],[421,"HAZARIBAGH","Hazaribagh Model Town","","JTA"],[422,"HAZARIBAGH","Moneshwar Road","","JTA"],[423,"HAZARIBAGH","Tali Office","","JTA"],[424,"HAZARIBAGH","Mitali Road","","JTA"],
+  [425,"JATRABARI","Jatrabari","JTB","JTB"],[426,"JATRABARI","Jatrabari Chattar Agent","JTG","JTB"],[427,"JATRABARI","Signboard","SGB","JTB"],[428,"JATRABARI","Faridabad","","JTB"],[429,"JATRABARI","Mir Hajir Bagh","","JTB"],[430,"JATRABARI","Pargendaria","","JTB"],[431,"JATRABARI","Dholpur","","JTB"],[432,"JATRABARI","Sayedabad","","JTB"],[433,"JATRABARI","Bibir Bagicha","","JTB"],[434,"JATRABARI","Kolapotti","","JTB"],[435,"JATRABARI","Shohid Faruq Road","","JTB"],[436,"JATRABARI","Dholaipar Road","","JTB"],[437,"JATRABARI","Jatrabari Bazar Road","","JTB"],[438,"JATRABARI","Nobinagar","","JTB"],[439,"JATRABARI","Chandonkotha","","JTB"],[440,"JATRABARI","Uttar Jatrabari","","JTB"],[441,"JATRABARI","Dakhsin Jatrabari","","JTB"],
+  [442,"KADAMTALI","Kadamtali","","JTB"],[443,"KADAMTALI","Shonir Akhra","SNA","JTB"],[444,"KADAMTALI","Dania","","JTB"],[445,"KADAMTALI","Rasulpur","","JTB"],[446,"KADAMTALI","Kazla","","JTB"],[447,"KADAMTALI","Nurpur","","JTB"],[448,"KADAMTALI","Goalabari","","JTB"],[449,"KADAMTALI","Paterbagh","","JTB"],[450,"KADAMTALI","Sorai","","JTB"],[451,"KADAMTALI","AK School And College","","JTB"],[452,"KADAMTALI","Shekhdi","","JTB"],[453,"KADAMTALI","Banspotti","","JTB"],[454,"KADAMTALI","Vanga Press","","JTB"],[455,"KADAMTALI","Noyanagar","","JTB"],[456,"KADAMTALI","Paragar","","JTB"],[457,"KADAMTALI","Adarshobagh","","JTB"],[458,"KADAMTALI","Momenbagh","","JTB"],[459,"KADAMTALI","Keranipara","","JTB"],[460,"KADAMTALI","Baniabagh","","JTB"],[461,"KADAMTALI","Rohomatpur","","JTB"],[462,"KADAMTALI","Dogai Purbopara","","JTB"],[463,"KADAMTALI","Dogai Poschimpara","","JTB"],[464,"KADAMTALI","Matuail Medical","","JTB"],[465,"KADAMTALI","Matuail Dakhsinpara","","JTB"],[466,"KADAMTALI","Uttar Signboard","","JTB"],[467,"KADAMTALI","Mahmudpur","","JTB"],[468,"KADAMTALI","Uttar Rayerbagh","","JTB"],[469,"KADAMTALI","Gobindopur","","JTB"],[470,"KADAMTALI","Zia Saroni","","JTB"],[471,"KADAMTALI","Japani Bazar","","JTB"],[472,"KADAMTALI","Gas Road","","JTB"],[473,"KADAMTALI","Rayerbagh","","JTB"],[474,"KADAMTALI","Zolkabagh","","JTB"],[475,"KADAMTALI","Meraznagar","","JTB"],[476,"KADAMTALI","Meraznagar Block-A","","JTB"],[477,"KADAMTALI","Meraznagar Block-B","","JTB"],[478,"KADAMTALI","Meraznagar Block-C","","JTB"],[479,"KADAMTALI","Khanka Road","","JTB"],[480,"KADAMTALI","Matuail","","JTB"],[481,"KADAMTALI","Shaosinbagh","","JTB"],[482,"KADAMTALI","Tusar Dhara","","JTB"],[483,"KADAMTALI","Giridhara","","JTB"],[484,"KADAMTALI","Shantidhara","","JTB"],[485,"KADAMTALI","Boshunalpur","","JTB"],[486,"KADAMTALI","Shahebpara","","JTB"],[487,"KADAMTALI","Bhuyanpara","","JTB"],[488,"KADAMTALI","Shaympur","","JTB"],[489,"KADAMTALI","Kazipara","","JTB"],
+  [490,"KAFRUL","West Kafrul","","M10"],[491,"KAFRUL","Kafrul","","M10"],[492,"KAFRUL","Ibrahimpur","","M10"],[493,"KAFRUL","North Kafrul","","M10"],[494,"KAFRUL","Dhaka Dental College","","M10"],[495,"KAFRUL","South Kafrul","","M10"],[496,"KAFRUL","Kochukhet","KKH","M10"],
+  [497,"KALABAGAN","Kalabagan","KLB","KLB"],[498,"KALABAGAN","Kalabagan Market","KAD","KLB"],[499,"KALABAGAN","Bashiruddin Road","","KLB"],[500,"KALABAGAN","Lake Circus Road","","KLB"],[501,"KALABAGAN","Dolphin Goli","","KLB"],[502,"KALABAGAN","Tollabagh","","KLB"],[503,"KALABAGAN","Sobhanbagh","","KLB"],[504,"KALABAGAN","Panthopath","","KLB"],
+  [505,"KAMRANGIRCHAR","Jhau Char","","JTA"],[506,"KAMRANGIRCHAR","Kamrangichar","KMG","VPK"],[507,"KAMRANGIRCHAR","Atibazar, Ghatarchor More","ATB","VPK"],[508,"KAMRANGIRCHAR","Atibazar","ATA","VPK"],
+  [509,"KERANIGANJ","Subhadya","","VPK"],[510,"KERANIGANJ","Tegharia","","VPK"],[511,"KERANIGANJ","Hazratpur","","VPK"],[512,"KERANIGANJ","Kalatia","","VPK"],[513,"KERANIGANJ","Taranagar","","VPK"],[514,"KERANIGANJ","Sakta","","VPK"],[515,"KERANIGANJ","Ruhitpur","","VPK"],[516,"KERANIGANJ","Ramerkanda","","VPK"],[517,"KERANIGANJ","Basta","","VPK"],[518,"KERANIGANJ","Kalindi","","VPK"],[519,"KERANIGANJ","Zinzira","","VPK"],[520,"KERANIGANJ","Konda","","VPK"],[521,"KERANIGANJ","Aganagar","","VPK"],[522,"KERANIGANJ","Babu Bazar","BBZ","VPK"],[523,"KERANIGANJ","Babu Bazar Bridge","BBA","VPK"],[524,"KERANIGANJ","South Keranigonj","SKG","VPK"],[525,"KERANIGANJ","Hasnabad","HNB","VPK"],[526,"KERANIGANJ","RND Road","","VPK"],[527,"KERANIGANJ","KN Saha Road","","VPK"],[528,"KERANIGANJ","Fezman","","VPK"],[529,"KERANIGANJ","Vhagolpur","","VPK"],[530,"KERANIGANJ","Enayetgonj","","VPK"],[531,"KERANIGANJ","Nilshor Saha Road","","VPK"],[532,"KERANIGANJ","Arshadbad","","VPK"],[533,"KERANIGANJ","BRTA Keranigonj","","VPK"],[534,"KERANIGANJ","Muhori Ghat","","VPK"],[535,"KERANIGANJ","Pan Ghat","","VPK"],[536,"KERANIGANJ","Pangaon","","VPK"],[537,"KERANIGANJ","Basundhara River View","","VPK"],[538,"KERANIGANJ","Keraniganj","KRJ","VPK"],[539,"KERANIGANJ","Islampur","","VPK"],[540,"KERANIGANJ","Shah Amanullan Road","","VPK"],[541,"KERANIGANJ","Zinda Bahar","","VPK"],[542,"KERANIGANJ","Kamal Bagh","","VPK"],[543,"KERANIGANJ","Becharamdawri","","VPK"],[544,"KERANIGANJ","Rahamatgonj","","VPK"],[545,"KERANIGANJ","Badam Toli","","VPK"],[546,"KERANIGANJ","Dal Potti","","VPK"],[547,"KERANIGANJ","Arshinagar","","VPK"],[548,"KERANIGANJ","Washpur","","VPK"],[549,"KERANIGANJ","River View","","VPK"],[550,"KERANIGANJ","Telghat","","VPK"],[551,"KERANIGANJ","Kathuria","","VPK"],[552,"KERANIGANJ","Goljarbag","","VPK"],[553,"KERANIGANJ","Nazirabag","","VPK"],[554,"KERANIGANJ","Kaliganj","","VPK"],[555,"KERANIGANJ","Nazarganj","","VPK"],[556,"KERANIGANJ","Chunkutia","","VPK"],[557,"KERANIGANJ","Am Bagicha","","VPK"],[558,"KERANIGANJ","Zia Nagor","","VPK"],[559,"KERANIGANJ","Imambari","","VPK"],[560,"KERANIGANJ","Kodomtoli","","VPK"],[561,"KERANIGANJ","Najirabag","","VPK"],[562,"KERANIGANJ","Bondok Para","","VPK"],[563,"KERANIGANJ","Golam Bazar","","VPK"],[564,"KERANIGANJ","Ekuria","","VPK"],[565,"KERANIGANJ","Kholamora","","VPK"],[566,"KERANIGANJ","Abdullahpur","ABD","VPK"],[567,"KERANIGANJ","Imamgonj","IMG","VPK"],[568,"KERANIGANJ","Patuatuli","PTI","VPK"],[569,"KERANIGANJ","Shyam Bazar","","VPK"],
+  [570,"KHILGAON","Khilgaon","KHN","BSR"],[571,"KHILGAON","Malibagh Chowdhury Para","","BSR"],[572,"KHILGAON","Abul Hotel Back Side","","BSR"],[573,"KHILGAON","South Point School","","BSR"],[574,"KHILGAON","Malibagh Abashik Area","","BSR"],[575,"KHILGAON","Matir Moszid","","BSR"],[576,"KHILGAON","Jhilpar","","BSR"],[577,"KHILGAON","Notun Bagh","","BSR"],[578,"KHILGAON","Moulivirteck","","BSR"],[579,"KHILGAON","Reazbagh","","BSR"],[580,"KHILGAON","Biddut Office","","BSR"],[581,"KHILGAON","Taltala Market","","BSR"],[582,"KHILGAON","Malibagh","MBH","BSR"],[583,"KHILGAON","Khilgaon Bazar","KGN","BSR"],[584,"KHILGAON","Goran","","BSR"],[585,"KHILGAON","Sipahibagh","","BSR"],[586,"KHILGAON","Khilgaon C Block","","BSR"],[587,"KHILGAON","Khilgaon A Block","","BSR"],[588,"KHILGAON","Tilpara","","BSR"],[589,"KHILGAON","Khilgaon Road No-01","","BSR"],[590,"KHILGAON","Khilgaon Road No-02","","BSR"],[591,"KHILGAON","Khilgaon Road No-03","","BSR"],[592,"KHILGAON","Khilgaon Road No-04","","BSR"],[593,"KHILGAON","Khilgaon Road No-05","","BSR"],[594,"KHILGAON","Khilgaon Road No-06","","BSR"],[595,"KHILGAON","Khilgaon Road No-07","","BSR"],[596,"KHILGAON","Khilgaon Road No-08","","BSR"],[597,"KHILGAON","Khilgaon Road No-09","","BSR"],[598,"KHILGAON","Khilgaon Road No-10","","BSR"],[599,"KHILGAON","Khilgaon Road No-11","","BSR"],[600,"KHILGAON","Khilgaon Road No-12","","BSR"],[601,"KHILGAON","Khilgaon Road No-13","","BSR"],[602,"KHILGAON","Khilgaon Road No-14","","BSR"],[603,"KHILGAON","Khilgaon Road No-15","","BSR"],[604,"KHILGAON","Khilgaon Road No-16","","BSR"],[605,"KHILGAON","Khilgaon Road No-17","","BSR"],[606,"KHILGAON","Khilgaon Road No-18","","BSR"],[607,"KHILGAON","Khilgaon Road No-19","","BSR"],[608,"KHILGAON","Khilgaon Road No-20","","BSR"],[609,"KHILGAON","Khilgaon Road No-21","","BSR"],[610,"KHILGAON","Khilgaon Road No-22","","BSR"],[611,"KHILGAON","Khilgaon Road No-23","","BSR"],[612,"KHILGAON","Khilgaon Road No-24","","BSR"],[613,"KHILGAON","Uttar Goran","","BSR"],[614,"KHILGAON","Chartola Goli","","BSR"],[615,"KHILGAON","Saterunbagh","","BSR"],[616,"KHILGAON","Notun Rasta","","BSR"],[617,"KHILGAON","Adarsho Bagh","","BSR"],[618,"KHILGAON","Rojunigandha","","BSR"],[619,"KHILGAON","Krisnochura Road","","BSR"],[620,"KHILGAON","Shipahibagh Tempu Stand","","BSR"],[621,"KHILGAON","Goran Tempu Stand","","BSR"],[622,"KHILGAON","Shantipur Road No-01","","BSR"],[623,"KHILGAON","Shantipur Road No-02","","BSR"],[624,"KHILGAON","Shantipur Road No-03","","BSR"],[625,"KHILGAON","Shantipur Road No-04","","BSR"],[626,"KHILGAON","Shantipur Road No-05","","BSR"],[627,"KHILGAON","Shantipur Road No-06","","BSR"],[628,"KHILGAON","Shantipur Road No-07","","BSR"],[629,"KHILGAON","Tarabagh","","BSR"],[630,"KHILGAON","Dakshin Goran-32","","BSR"],[631,"KHILGAON","Dakshin Goran-34","","BSR"],[632,"KHILGAON","Dakshin Goran-35","","BSR"],[633,"KHILGAON","Dakshin Goran-36","","BSR"],[634,"KHILGAON","Ali Ahmed School","","BSR"],[635,"KHILGAON","Baganbari Road","","BSR"],[636,"KHILGAON","Chapra Moszid","","BSR"],[637,"KHILGAON","Purbo Goran Road-07","","BSR"],[638,"KHILGAON","Purbo Goran Road-08","","BSR"],[639,"KHILGAON","Purbo Goran Road-09","","BSR"],[640,"KHILGAON","Purbo Goran Road-10","","BSR"],[641,"KHILGAON","Purbo Goran Road-11","","BSR"],[642,"KHILGAON","Purbo Goran Road-12","","BSR"],[643,"KHILGAON","Purbo Goran Road-13","","BSR"],[644,"KHILGAON","Purbo Goran Road-14","","BSR"],[645,"KHILGAON","Nurbagh Titas Road","","BSR"],[646,"KHILGAON","Eng. Abul Sattar Road","","BSR"],[647,"KHILGAON","Adorsho School Goli","","BSR"],[648,"KHILGAON","Makkha Moszid","","BSR"],[649,"KHILGAON","Talukder Goli","","BSR"],
+  [650,"KHILKHET","Khilkhet","KKT","UTS"],[651,"KHILKHET","Chuti Ghor Road","","UTS"],[652,"KHILKHET","Uttar Para","","UTS"],[653,"KHILKHET","Tolna","","UTS"],[654,"KHILKHET","Nikunja","NKJ","U15"],[655,"KHILKHET","Kawla","","U15"],[656,"KHILKHET","Dorji Bari","","UTS"],[657,"KHILKHET","Bawaila Para","","UTS"],[658,"KHILKHET","Dhelna","","UTS"],[659,"KHILKHET","Namapara","","UTS"],[660,"KHILKHET","Nikunja 2","","U15"],[661,"KHILKHET","Lake City Park","","UTS"],[662,"KHILKHET","Khapara","","UTS"],[663,"KHILKHET","Patira Bazar","","UTS"],[664,"KHILKHET","Mostul Check Post","","UTS"],[665,"KHILKHET","Kurmitoal General Hospital","","U15"],[666,"KHILKHET","Banarupa Abashik","","UTS"],[667,"KHILKHET","West Barua","","UTS"],[668,"KHILKHET","South Barua","","UTS"],[669,"KHILKHET","South Barua Residential Area","","UTS"],[670,"KHILKHET","Dumni","","BRD"],
+  [671,"KOTWALI","Kotwali","","VPK"],[672,"KOTWALI","Victoria Park","VPK","VPK"],[673,"KOTWALI","Bangla Bazar","BAB","VPK"],[674,"KOTWALI","Aysha Bazar Mor","","VPK"],[675,"KOTWALI","District Judge Court","","VPK"],[676,"KOTWALI","CMM Court","","VPK"],[677,"KOTWALI","Islami Bank","","VPK"],[678,"KOTWALI","Pubali Bank","","VPK"],[679,"KOTWALI","Dhaka Bar Association","","VPK"],[680,"KOTWALI","Jagannath University","","VPK"],[681,"KOTWALI","Court Kachari","","VPK"],[682,"KOTWALI","Sadarghat Dhaka","","VPK"],[683,"KOTWALI","Farashgang","","VPK"],[684,"KOTWALI","Rajar Dewri","","VPK"],
+  [685,"LALBAGH","Lalbagh","LBG","VPK"],[686,"LALBAGH","Urdo Road","UDR","VPK"],[687,"LALBAGH","Kellar Mor","","VPK"],[688,"LALBAGH","Shahidnagar","","VPK"],
+  [689,"MIRPUR","Mirpur-10","M10","M10"],[690,"MIRPUR","Shewrapara","SPA","M10"],[691,"MIRPUR","Mirpur-02","M02","M10"],[692,"MIRPUR","Golartek","","M10"],[693,"MIRPUR","West Kazipara","","M10"],[694,"MIRPUR","Kazipara","","M10"],[695,"MIRPUR","Monipur School","","M10"],[696,"MIRPUR","Shaodagor Goli","","M10"],[697,"MIRPUR","Zoo Road","","KLP"],[698,"MIRPUR","Orizinal-10","O10","M10"],[699,"MIRPUR","Police Staff College","","M10"],[700,"MIRPUR","Nam Garden-BRTA","","M10"],[701,"MIRPUR","Benaroshi Polli","","M10"],[702,"MIRPUR","Buddhist Temple","","M10"],[703,"MIRPUR","Govt Secondary School Road Rupnagor","","M10"],[704,"MIRPUR","Senpara Parbata","","M10"],[705,"MIRPUR","BRTA Mirpur","","M10"],[706,"MIRPUR","60 Feet Mor","","M10"],[707,"MIRPUR","Mirpur-6","","M10"],[708,"MIRPUR","Mirpur-7","","M10"],[709,"MIRPUR","Mirpur-15","","M10"],[710,"MIRPUR","Mirpur-13","","M10"],[711,"MIRPUR","Mirpur-14","","M10"],[712,"MIRPUR","Mirpur-10 All Block","","M10"],[713,"MIRPUR","Mirpur-1-block-d","","KLP"],[714,"MIRPUR","Mirpur-1-block-e","","KLP"],[715,"MIRPUR","Mirpur-1-block-f","","KLP"],[716,"MIRPUR","Mirpur-1-block-g","","KLP"],[717,"MIRPUR","Mirpur-1-block-h","","KLP"],[718,"MIRPUR","Mirpur-1-block-new-C","","KLP"],[719,"MIRPUR","Dakshin Bisil","","KLP"],[720,"MIRPUR","Uttor Bisil","","KLP"],[721,"MIRPUR","Kiyangshi Chinese","","KLP"],[722,"MIRPUR","Shah Ali Market","","KLP"],[723,"MIRPUR","East Kazipara","","M10"],[724,"MIRPUR","Purbo Monipur","","M10"],[725,"MIRPUR","Love Road","","M10"],[726,"MIRPUR","Monipur","","M10"],[727,"MIRPUR","Borobagh","","M10"],[728,"MIRPUR","Poschim Monipur","","M10"],[729,"MIRPUR","Rainkhola Bazar","","M10"],[730,"MIRPUR","Dhaka Commerce College","","KLP"],[731,"MIRPUR","Mirpur Stadium","","M10"],
+  [732,"MOHAMMADPUR","Mohammadpur","MHD","KLP"],[733,"MOHAMMADPUR","Lalmatia","LLA","KLP"],[734,"MOHAMMADPUR","Mohammadia Housing","MHG","KLP"],[735,"MOHAMMADPUR","Lalmatia Mohila College","LMC","KLP"],[736,"MOHAMMADPUR","Salimullah Road","","KLP"],[737,"MOHAMMADPUR","Asad Avenue","","KLP"],[738,"MOHAMMADPUR","Rayer Bazar","RBZ","JTA"],[739,"MOHAMMADPUR","Bosila","BLR","KLP"],[740,"MOHAMMADPUR","Dhaka Uddan","","KLP"],[741,"MOHAMMADPUR","Nobodoy Housing","","KLP"],[742,"MOHAMMADPUR","Chad Uddan Housing","","KLP"],[743,"MOHAMMADPUR","Tajmahal Road","","KLP"],[744,"MOHAMMADPUR","Nurjahan Road","","KLP"],[745,"MOHAMMADPUR","Rajia Sultana Road","","KLP"],[746,"MOHAMMADPUR","Kaderabad Housing","","KLP"],[747,"MOHAMMADPUR","Satmoshjid Road","","JTA"],[748,"MOHAMMADPUR","Sadek Khan Road","","KLP"],[749,"MOHAMMADPUR","Katasur","KTR","KLP"],[750,"MOHAMMADPUR","Garden City","","KLP"],[751,"MOHAMMADPUR","Boddhovumi","","KLP"],
+  [752,"MOTIJHEEL","Lost And Found","LNF","DIL"],[753,"MOTIJHEEL","Sara Tower Motijheel","","DIL"],[754,"MOTIJHEEL","Dilkusha","DIL","DIL"],[755,"MOTIJHEEL","Bangladesh Bank Building","","DIL"],[756,"MOTIJHEEL","Bangladesh Shilpa Bank Bhaban","","DIL"],[757,"MOTIJHEEL","City Centre Dhaka","","DIL"],[758,"MOTIJHEEL","EFCU Insurance Building","","DIL"],[759,"MOTIJHEEL","Janata Bank Bhaban","","DIL"],[760,"MOTIJHEEL","Jiban Bima Tower","","DIL"],[761,"MOTIJHEEL","Modhumita","","DIL"],[762,"MOTIJHEEL","Motijheel Metro Station","","DIL"],[763,"MOTIJHEEL","Shapla Square","","DIL"],[764,"MOTIJHEEL","Sena Kalyan Bhaban","","DIL"],[765,"MOTIJHEEL","154, Motijheel","154","DIL"],[766,"MOTIJHEEL","167, Motijheel","167","DIL"],[767,"MOTIJHEEL","9G. Toyenbee Road","9MJ","DIL"],[768,"MOTIJHEEL","Press Club","PRS","DIL"],[769,"MOTIJHEEL","Notre Dame College","","DIL"],[770,"MOTIJHEEL","Arambag","","DIL"],
+  [771,"MUGDA","Kamolapur","KSD","DIL"],[772,"MUGDA","Mugda","MGD","DIL"],[773,"MUGDA","Manik Nagar","","DIL"],[774,"MUGDA","TT Para","","DIL"],[775,"MUGDA","Railway Station","","DIL"],[776,"MUGDA","Mugda Hospital","","DIL"],[777,"MUGDA","Mugda Medical College","","DIL"],[778,"MUGDA","R K Mission Road","RKM","DIL"],[779,"MUGDA","Manda","","DIL"],
+  [780,"NEW MARKET","Elephant Road","ELP","KLB"],[781,"NEW MARKET","Gausia Market","","KLB"],[782,"NEW MARKET","Priyangon Market","","KLB"],[783,"NEW MARKET","Multiplan Center","","KLB"],[784,"NEW MARKET","Azimpur","AZP","JTA"],[785,"NEW MARKET","Shekh Saheb Bazar","","JTA"],[786,"NEW MARKET","Azimpur Quarter","","JTA"],[787,"NEW MARKET","Green Road","GRD","KLB"],[788,"NEW MARKET","New Market","NMT","JTA"],[789,"NEW MARKET","Kathalbagan","KBN","KLB"],[790,"NEW MARKET","Science Lab","","KLB"],[791,"NEW MARKET","Polashi","","JTA"],[792,"NEW MARKET","New Paltan Line","","JTA"],[793,"NEW MARKET","Dhaka College","","JTA"],[794,"NEW MARKET","City College","","JTA"],[795,"NEW MARKET","Popular Hospital","","JTA"],
+  [796,"PALLABI","Mirpur-11","M11","M10"],[797,"PALLABI","Mirpur-11 All Block","","M10"],[798,"PALLABI","Lalmati","","M10"],[799,"PALLABI","Sangbadik Colony","","M10"],[800,"PALLABI","Baunia Badh","","M10"],[801,"PALLABI","Arambagh R/A","","M10"],[802,"PALLABI","Extended Pallabi","","M10"],[803,"PALLABI","Alokdee","","M10"],[804,"PALLABI","Haji Road","","M10"],[805,"PALLABI","Nasimbagh","","M10"],[806,"PALLABI","Purobi Bus Stand","","M10"],[807,"PALLABI","Mirpur 11.5 Bus Stand","","M10"],[808,"PALLABI","Madina Nagar","","M10"],[809,"PALLABI","Al Haj Market","","M10"],[810,"PALLABI","Mirpur DOHS","","M10"],[811,"PALLABI","Pallabi","PLI","M10"],[812,"PALLABI","Kalshi Road","KLR","M10"],[813,"PALLABI","Duaripara-Pallabi","","M10"],[814,"PALLABI","Shagufta","","M10"],[815,"PALLABI","Kalapani","","M10"],[816,"PALLABI","Swapno Nagar","","M10"],[817,"PALLABI","Palasnagor","","M10"],[818,"PALLABI","Mirpur-12","","M10"],[819,"PALLABI","Mirpur-12 All Block","","M10"],
+  [820,"PALTAN","14 Purana Paltan","14P","DIL"],[821,"PALTAN","60b Purana Paltan","60P","DIL"],[822,"PALTAN","Bijoy Nagor","BIN","DIL"],[823,"PALTAN","Fakirapool","FPL","DIL"],[824,"PALTAN","Dainik Bangla Mor","","DIL"],[825,"PALTAN","Fakirapul Bazar","FPB","DIL"],[826,"PALTAN","Naya Paltan","NPL","DIL"],[827,"PALTAN","Bijoynagar","","DIL"],[828,"PALTAN","Chamelibag","CMB","DIL"],[829,"PALTAN","Shantinagar","","DIL"],[830,"PALTAN","Baily Road","","DIL"],[831,"PALTAN","Minto Road","","DIL"],[832,"PALTAN","Habibullah Bahar University","","DIL"],
+  [833,"RAMNA","Moghbazar","MGB","BSR"],[834,"RAMNA","Malibagh Bazar Road","","BSR"],[835,"RAMNA","Sonalibagh","","BSR"],[836,"RAMNA","Miror Bagh","","BSR"],[837,"RAMNA","Chan Bakery Goli","","BSR"],[838,"RAMNA","Boro Moghbazar","","BSR"],[839,"RAMNA","Pearabagh","","BSR"],[840,"RAMNA","Baghtola","","BSR"],[841,"RAMNA","Mirbagh","","BSR"],[842,"RAMNA","Shah Saheb Bazar","","BSR"],[843,"RAMNA","Amtoli","","BSR"],[844,"RAMNA","Green Way Road","","BSR"],[845,"RAMNA","Pir Pagla Goli","","BSR"],[846,"RAMNA","T & T Colony","","BSR"],[847,"RAMNA","Purbo Noyatola","","BSR"],[848,"RAMNA","Noyatola Modhubagh","","BSR"],[849,"RAMNA","Malibagh Taltola","","DIL"],[850,"RAMNA","Siddweswari","","DIL"],[851,"RAMNA","Ramna","","DIL"],[852,"RAMNA","Bongo Bazar","BGB","VPK"],[853,"RAMNA","Mouchak","MCK","DIL"],[854,"RAMNA","Kakrail","KKR","DIL"],[855,"RAMNA","Dhaka Medical","","VPK"],[856,"RAMNA","Nazim Uddin Road","","VPK"],[857,"RAMNA","Hosenedalan","","VPK"],[858,"RAMNA","Nimtola","","VPK"],[859,"RAMNA","Bakshi Bazar","","VPK"],[860,"RAMNA","Gulistan","","VPK"],[861,"RAMNA","Baitul Mokaram Mosjid","","VPK"],[862,"RAMNA","Secretariat","","VPK"],[863,"RAMNA","South City Corporation","","VPK"],[864,"RAMNA","Nagar Bhaban","","VPK"],[865,"RAMNA","Police Head Quarter","","VPK"],[866,"RAMNA","Fulbaria","","VPK"],[867,"RAMNA","Stadium Dhaka","","VPK"],[868,"RAMNA","Chankarpul","","DIL"],[869,"RAMNA","Dhakeshwari","","VPK"],[870,"RAMNA","Bongo Bondhu Avenue","","VPK"],[871,"RAMNA","Kazi Nazrul Islam Avenue","","TGB"],
+  [872,"RAMPURA","Rampura","RPA","BSR"],[873,"RAMPURA","Wapda Road","","BSR"],[874,"RAMPURA","Omar Ali Lane","","BSR"],[875,"RAMPURA","Mohanagar Project","","BSR"],[876,"RAMPURA","Ulon Road","","BSR"],[877,"RAMPURA","Daspara","","BSR"],[878,"RAMPURA","Adi lane","","BSR"],[879,"RAMPURA","Shimul Bagh","","BSR"],[880,"RAMPURA","Bou Bazar","","BSR"],[881,"RAMPURA","Hajipara","","BSR"],[882,"RAMPURA","West Hajipara","","BSR"],[883,"RAMPURA","Poschim Hajipara","","BSR"],[884,"RAMPURA","Purbo Hajipara","","BSR"],[885,"RAMPURA","East Hajipara","","BSR"],[886,"RAMPURA","West Rampura","","BSR"],[887,"RAMPURA","Poschim Rampura","","BSR"],[888,"RAMPURA","Aftab Nagar","","BSR"],[889,"RAMPURA","East West University","","BSR"],[890,"RAMPURA","Aftab Nagar Satarkul","","BSR"],[891,"RAMPURA","Aftab Nagar Block- A","","BSR"],[892,"RAMPURA","Aftab Nagar Block- B","","BSR"],[893,"RAMPURA","Aftab Nagar Block- C","","BSR"],[894,"RAMPURA","Aftab Nagar Block- D","","BSR"],[895,"RAMPURA","Aftab Nagar Block- E","","BSR"],[896,"RAMPURA","Aftab Nagar Block- F","","BSR"],[897,"RAMPURA","Aftab Nagar Block- G","","BSR"],[898,"RAMPURA","Aftab Nagar Block- H","","BSR"],[899,"RAMPURA","Aftab Nagar Block- I","","BSR"],[900,"RAMPURA","Aftab Nagar Block- J","","BSR"],[901,"RAMPURA","Aftab Nagar Block- K","","BSR"],[902,"RAMPURA","Aftab Nagar Block- L","","BSR"],[903,"RAMPURA","Aftab Nagar Block- M","","BSR"],[904,"RAMPURA","Aftab Nagar Block- N","","BSR"],[905,"RAMPURA","Aftab Nagar Block- O","","BSR"],[906,"RAMPURA","Aftab Nagar Block- P","","BSR"],[907,"RAMPURA","Dasherkandi","","BSR"],[908,"RAMPURA","Banasree","BSR","BSR"],[909,"RAMPURA","Purbo Rampura","","BSR"],[910,"RAMPURA","Rampura Tv Center-BTV","","BSR"],[911,"RAMPURA","Banasree Block - A","","BSR"],[912,"RAMPURA","Banasree Block - B","","BSR"],[913,"RAMPURA","Banasree Block - D","","BSR"],[914,"RAMPURA","Banasree Block - E","","BSR"],[915,"RAMPURA","Banasree Block - F","","BSR"],[916,"RAMPURA","Banasree Block - G","","BSR"],[917,"RAMPURA","Banasree Block - H","","BSR"],[918,"RAMPURA","Banasree Block - I","","BSR"],[919,"RAMPURA","Banasree Block - J","","BSR"],[920,"RAMPURA","Banasree Block - K","","BSR"],[921,"RAMPURA","Banasree Block - L","","BSR"],[922,"RAMPURA","Banasree Block - M","","BSR"],[923,"RAMPURA","Banasree Block - N","","BSR"],[924,"RAMPURA","Titas Road","","BSR"],[925,"RAMPURA","Nobinbagh","","BSR"],[926,"RAMPURA","Kusumbagh","","BSR"],[927,"RAMPURA","Bank Colony","","BSR"],[928,"RAMPURA","Balurmath","","BSR"],[929,"RAMPURA","Bhuiyanpara","","BSR"],[930,"RAMPURA","Meradia","","BSR"],[931,"RAMPURA","Zamtola","","BSR"],[932,"RAMPURA","Koboreshthan","","BSR"],[933,"RAMPURA","Ansarbagh","","BSR"],[934,"RAMPURA","Meradia Moddhopara","","BSR"],[935,"RAMPURA","Mollabari","","BSR"],[936,"RAMPURA","TV Road","","BSR"],[937,"RAMPURA","Kunjobon","","BSR"],[938,"RAMPURA","Zakir Road","","BSR"],[939,"RAMPURA","Demra Link Road","","BSR"],[940,"RAMPURA","Teckpara J Block","","BSR"],[941,"RAMPURA","Singapore Road","","BSR"],[942,"RAMPURA","Nandipara","","BSR"],[943,"RAMPURA","Boro Botatala","","BSR"],[944,"RAMPURA","Choto Botatala","","BSR"],[945,"RAMPURA","Shekherjiga","","BSR"],[946,"RAMPURA","Trimohoni","","BSR"],[947,"RAMPURA","Dakhshingaon","","BSR"],
+  [948,"RUPNAGAR","Rupnagar","RPG","M10"],[949,"RUPNAGAR","Alubodi","","M10"],[950,"RUPNAGAR","Parboti Nagar","","M10"],[951,"RUPNAGAR","Eastern Housing","","M10"],[952,"RUPNAGAR","Rupnagar Bazar","RNR","M10"],
+  [953,"SABUJBAGH","Sabujbagh","","BSR"],[954,"SABUJBAGH","Nondipara","NDP","BSR"],[955,"SABUJBAGH","Bashabo","BSO","BSR"],[956,"SABUJBAGH","Middle Bashabo","","BSR"],[957,"SABUJBAGH","Mothertek","","BSR"],[958,"SABUJBAGH","Sabujbag Thana","","BSR"],[959,"SABUJBAGH","Buddho Mondir","","BSR"],[960,"SABUJBAGH","Purbo Bashabo","","BSR"],[961,"SABUJBAGH","East Bashabo","","BSR"],[962,"SABUJBAGH","Dakshin Bashabo","","BSR"],[963,"SABUJBAGH","Kadomtoli","","BSR"],[964,"SABUJBAGH","Rajarbagh Kalibari","","BSR"],[965,"SABUJBAGH","Mayakanon","","BSR"],[966,"SABUJBAGH","Ahmed Bagh","","BSR"],[967,"SABUJBAGH","Sobujkanon","","BSR"],[968,"SABUJBAGH","Pashchim Mothertek","","BSR"],[969,"SABUJBAGH","West Mothertek","","BSR"],[970,"SABUJBAGH","Purbo Mothertek","","BSR"],[971,"SABUJBAGH","East Mothertek","","BSR"],
+  [972,"SHAH ALI","Shah Ali","","KLP"],[973,"SHAH ALI","Mirpur-01","M01","KLP"],[974,"SHAH ALI","Mirpur-01 Goal Chattar","M1B","KLP"],[975,"SHAH ALI","Mazar Road","","KLP"],[976,"SHAH ALI","Bangla College","","KLP"],[977,"SHAH ALI","Shah Ali Bagh","","KLP"],[978,"SHAH ALI","Mirpur-1-block-a","","KLP"],[979,"SHAH ALI","Tolarbagh","TLB","KLP"],[980,"SHAH ALI","Ahmed Nagar-Paikpara","","KLP"],[981,"SHAH ALI","Paikpara","","KLP"],[982,"SHAH ALI","Vanga Bridge","","KLP"],[983,"SHAH ALI","Janata Housing","","M10"],[984,"SHAH ALI","Pirerbagh","","KLP"],[985,"SHAH ALI","Pirerbag-60-feet","","KLP"],[986,"SHAH ALI","Mirpur-1-block-b","","KLP"],[987,"SHAH ALI","Mirpur-1-block-c","","KLP"],[988,"SHAH ALI","Tamanna Park","","KLP"],[989,"SHAH ALI","Buddhijibi","","KLP"],[990,"SHAH ALI","Hope School Road","","KLP"],
+  [991,"SHAH BAGH","Palashi","","JTA"],[992,"SHAH BAGH","Shah Bagh","SHB","KLB"],[993,"SHAH BAGH","Motaleb Plaza","MPL","KLB"],[994,"SHAH BAGH","Bangla Motor","BGM","KLB"],[995,"SHAH BAGH","Hatirpool","HPL","KLB"],[996,"SHAH BAGH","Supreme Court","SPC","DIL"],[997,"SHAH BAGH","High Court","","DIL"],[998,"SHAH BAGH","Dhaka University","","KLB"],[999,"SHAH BAGH","BUET","","KLB"],[1000,"SHAH BAGH","Eden College","","JTA"],[1001,"SHAH BAGH","Nilkhet","NKT","KLB"],[1002,"SHAH BAGH","Babupura","","KLB"],[1003,"SHAH BAGH","Bata Signal","","KLB"],[1004,"SHAH BAGH","Habibullah Road","","KLB"],[1005,"SHAH BAGH","Central Road","","KLB"],[1006,"SHAH BAGH","Lab Aid","","KLB"],[1007,"SHAH BAGH","Sonargaon Road","","KLB"],[1008,"SHAH BAGH","Free School Street","","KLB"],[1009,"SHAH BAGH","Circular Road","","KLB"],[1010,"SHAH BAGH","North Road","","KLB"],[1011,"SHAH BAGH","Crecent Road","","KLB"],[1012,"SHAH BAGH","Vuter Goli","","KLB"],[1013,"SHAH BAGH","Alamin Road","","KLB"],[1014,"SHAH BAGH","Bir Uttam CR Datto Road","","KLB"],[1015,"SHAH BAGH","Mymensingh Lane","","KLB"],[1016,"SHAH BAGH","Dhaka Medical College","","DIL"],[1017,"SHAH BAGH","PG Hospital","","KLB"],[1018,"SHAH BAGH","Eskaton Garden Road","","DIL"],[1019,"SHAH BAGH","Eskaton","EST","DIL"],[1020,"SHAH BAGH","Katabon","","KLB"],[1021,"SHAH BAGH","Paribag","","KLB"],[1022,"SHAH BAGH","Segunbagicha","","DIL"],
+  [1023,"SHAHJAHANPUR","Rajarbag Police Lines","","DIL"],[1024,"SHAHJAHANPUR","Shahjahanpur","","DIL"],[1025,"SHAHJAHANPUR","Gulbagh","","DIL"],[1026,"SHAHJAHANPUR","RAB-03","","DIL"],[1027,"SHAHJAHANPUR","Shantibagh","","DIL"],
+  [1028,"SHER-E-BANGLA NAGAR","Agargaon-2","AG2","KLP"],[1029,"SHER-E-BANGLA NAGAR","Taltola","TAT","KLP"],[1030,"SHER-E-BANGLA NAGAR","Agargaon","AGN","KLP"],[1031,"SHER-E-BANGLA NAGAR","NBR Office","","KLP"],[1032,"SHER-E-BANGLA NAGAR","Monipur (60-feet)","","KLP"],[1033,"SHER-E-BANGLA NAGAR","Sher-e-bangla Agricultural University","","KLP"],[1034,"SHER-E-BANGLA NAGAR","South Monipur","","KLP"],[1035,"SHER-E-BANGLA NAGAR","BNP Bazar","","KLP"],[1036,"SHER-E-BANGLA NAGAR","Sher-e-bangla Nagar","","KLP"],[1037,"SHER-E-BANGLA NAGAR","Manik Mia Avenue","","KLP"],[1038,"SHER-E-BANGLA NAGAR","Sher E Bangla Road","","KLP"],
+  [1039,"SHYAMPUR","Shyampur","","JTB"],[1040,"SHYAMPUR","Dholaipar","DPR","JTB"],[1041,"SHYAMPUR","Jurain","","JTB"],[1042,"SHYAMPUR","Postogola","PTL","JTB"],[1043,"SHYAMPUR","Poschim Dholaipar","","JTB"],[1044,"SHYAMPUR","West Dholaipar","","JTB"],[1045,"SHYAMPUR","Purbo Dholaipar","","JTB"],[1046,"SHYAMPUR","East Dholaipar","","JTB"],[1047,"SHYAMPUR","Poschim Jurain","","JTB"],[1048,"SHYAMPUR","West Jurain","","JTB"],[1049,"SHYAMPUR","Purbo Jurain","","JTB"],[1050,"SHYAMPUR","East Jurain","","JTB"],[1051,"SHYAMPUR","Lalmia Sardar Road","","JTB"],[1052,"SHYAMPUR","Rustum Ali Sardar Road","","JTB"],[1053,"SHYAMPUR","Khorshed Ali Sardar Road","","JTB"],[1054,"SHYAMPUR","Karimullah Bagh","","JTB"],[1055,"SHYAMPUR","Shashan Ghat","","JTB"],[1056,"SHYAMPUR","Arshin Gate","","JTB"],[1057,"SHYAMPUR","Housing Road","","JTB"],[1058,"SHYAMPUR","Ali Bagh","","JTB"],[1059,"SHYAMPUR","Bisic","","JTB"],[1060,"SHYAMPUR","Aligonj","","JTB"],[1061,"SHYAMPUR","Pagla Bazar","","JTB"],[1062,"SHYAMPUR","Shahi Bazar","","JTB"],[1063,"SHYAMPUR","Vabir Bazar","","JTB"],[1064,"SHYAMPUR","Noyamati","","JTB"],[1065,"SHYAMPUR","Nandolapur","","JTB"],[1066,"SHYAMPUR","Dell Para","","JTB"],
+  [1067,"SIDDIRGONJ","Hirajheel","","JTB"],[1068,"SIDDIRGONJ","Siddirgonj","","JTB"],[1069,"SIDDIRGONJ","Biddhut Office","","JTB"],[1070,"SIDDIRGONJ","Madaninagar","","JTB"],[1071,"SIDDIRGONJ","Mouchak","","JTB"],[1072,"SIDDIRGONJ","Shanarpar","","JTB"],[1073,"SIDDIRGONJ","Rowshan Ara College Shanarpar","","JTB"],[1074,"SIDDIRGONJ","Baghpara","","JTB"],[1075,"SIDDIRGONJ","Shimrail","","JTB"],[1076,"SIDDIRGONJ","Rosulbagh","","JTB"],[1077,"SIDDIRGONJ","Shahin Garments","","JTB"],[1078,"SIDDIRGONJ","Chowdhury Para","","JTB"],[1079,"SIDDIRGONJ","Shijmiji Hindupara","","JTB"],[1080,"SIDDIRGONJ","Kandarpara Bortola","","JTB"],[1081,"SIDDIRGONJ","Shibu Market","","JTB"],[1082,"SIDDIRGONJ","Dapa Post Office","","JTB"],[1083,"SIDDIRGONJ","Ukil Bari","","JTB"],[1084,"SIDDIRGONJ","Share Char","","JTB"],[1085,"SIDDIRGONJ","Tokkarmath","","JTB"],[1086,"SIDDIRGONJ","Pilkuni","","JTB"],[1087,"SIDDIRGONJ","Lalkha","","JTB"],[1088,"SIDDIRGONJ","Lalpur","","JTB"],[1089,"SIDDIRGONJ","Ramarbagh","","JTB"],[1090,"SIDDIRGONJ","Katherpul","","JTB"],[1091,"SIDDIRGONJ","Fatullah Bazar","PGL","JTB"],[1092,"SIDDIRGONJ","Panchoboti","","JTB"],[1093,"SIDDIRGONJ","Bisic","","JTB"],[1094,"SIDDIRGONJ","Dharmogonj","","JTB"],[1095,"SIDDIRGONJ","Fajellur","","JTB"],[1096,"SIDDIRGONJ","Boktogoli","","JTB"],[1097,"SIDDIRGONJ","Noya Bazar","","JTB"],
+  [1098,"SUTRAPUR","Doyagonj","","VPK"],[1099,"SUTRAPUR","Sutrapur","","DIL"],[1100,"SUTRAPUR","Gopibagh","","DIL"],[1101,"SUTRAPUR","Tikatoli","","DIL"],[1102,"SUTRAPUR","Islambagh","","DIL"],[1103,"SUTRAPUR","Jonson Road","","VPK"],[1104,"SUTRAPUR","Banglabazar","BLB","VPK"],[1105,"SUTRAPUR","Dholaikhal","","VPK"],[1106,"SUTRAPUR","Bongram","","VPK"],[1107,"SUTRAPUR","Sangrat Chandra Road","","VPK"],[1108,"SUTRAPUR","Sultanganj","","VPK"],
+  [1109,"TEJGAON","Tejgaon","TGB","TGB"],[1110,"TEJGAON","Tejgaon Ind. Area","","TGB"],[1111,"TEJGAON","Farmgate","FGT","TGB"],[1112,"TEJGAON","Indira Road","IRD","TGB"],[1113,"TEJGAON","Kawran Bazar","KBZ","TGB"],[1114,"TEJGAON","Nakhalpara","NKP","TGB"],[1115,"TEJGAON","New Eskaton","NSK","DIL"],[1116,"TEJGAON","Raja Bazar","RAZ","TGB"],[1117,"TEJGAON","Orion More","","TGB"],[1118,"TEJGAON","GMG More","","TGB"],[1119,"TEJGAON","Bijoy Shoroni","","TGB"],[1120,"TEJGAON","Love Road","","TGB"],[1121,"TEJGAON","Link Road","TLR","TGB"],[1122,"TEJGAON","Tejkunipara","","TGB"],[1123,"TEJGAON","Monipuri Para","MNP","TGB"],[1124,"TEJGAON","Begunbari","","TGB"],[1125,"TEJGAON","Kunipara","","TGB"],[1126,"TEJGAON","Babli Masjid","","TGB"],[1127,"TEJGAON","Shaheenbagh","","TGB"],[1128,"TEJGAON","Satrasta More","TGB","TGB"],[1129,"TEJGAON","Lucas More","","TGB"],[1130,"TEJGAON","South Begunbari","","TGB"],[1131,"TEJGAON","Mohakhali Bus Terminal","","TGB"],
+  [1132,"TURAG","Turag","","U15"],[1133,"TURAG","Kamarpara","KMP","U15"],[1134,"TURAG","Turag Model School","","U15"],[1135,"TURAG","Dhour","","U15"],
+  [1136,"UTTAR KHAN","Uttar Khan","UKN","UTS"],[1137,"UTTAR KHAN","Chan bari","","UTS"],[1138,"UTTAR KHAN","Madar Bari","","UTS"],[1139,"UTTAR KHAN","Moiner Tek","","UTS"],[1140,"UTTAR KHAN","Gulgulla","","UTS"],[1141,"UTTAR KHAN","Helal Market","","UTS"],[1142,"UTTAR KHAN","Nowapara","","UTS"],[1143,"UTTAR KHAN","Saker Para","","UTS"],[1144,"UTTAR KHAN","Noa Para","","UTS"],[1145,"UTTAR KHAN","Moddho Para","","UTS"],[1146,"UTTAR KHAN","Chamur Khan","","UTS"],[1147,"UTTAR KHAN","Poradia","","UTS"],[1148,"UTTAR KHAN","Kachkura","","UTS"],[1149,"UTTAR KHAN","Dobadia","","UTS"],
+  [1150,"UTTARA DAKSHIN KHAN","Dakshin Khan","","UTS"],[1151,"UTTARA DAKSHIN KHAN","Moddhopara","","UTS"],[1152,"UTTARA DAKSHIN KHAN","Naddapara","","UTS"],[1153,"UTTARA DAKSHIN KHAN","Adam Ali Market","","UTS"],[1154,"UTTARA DAKSHIN KHAN","Chalabon","","UTS"],[1155,"UTTARA DAKSHIN KHAN","Mollapara","","UTS"],[1156,"UTTARA DAKSHIN KHAN","Sonakhola","","UTS"],[1157,"UTTARA DAKSHIN KHAN","Joynal Market","","UTS"],[1158,"UTTARA DAKSHIN KHAN","Sarwar Avenue","","UTS"],[1159,"UTTARA DAKSHIN KHAN","Moinartek","","UTS"],[1160,"UTTARA DAKSHIN KHAN","Atipara","","UTS"],[1161,"UTTARA DAKSHIN KHAN","Kotbari","","UTS"],[1162,"UTTARA DAKSHIN KHAN","Dewan City","","UTS"],[1163,"UTTARA DAKSHIN KHAN","Amtola","","UTS"],[1164,"UTTARA DAKSHIN KHAN","KC Hospital","","UTS"],[1165,"UTTARA DAKSHIN KHAN","KC College","","UTS"],[1166,"UTTARA DAKSHIN KHAN","Raja Bari","","UTS"],[1167,"UTTARA DAKSHIN KHAN","Chalabon North","","UTS"],[1168,"UTTARA DAKSHIN KHAN","Apan Nibash","","UTS"],[1169,"UTTARA DAKSHIN KHAN","Chapra Mosjid","","UTS"],[1170,"UTTARA DAKSHIN KHAN","Faydabad","","UTS"],[1171,"UTTARA DAKSHIN KHAN","Master Bari","","UTS"],[1172,"UTTARA DAKSHIN KHAN","Chanpara Bazar","","UTS"],[1173,"UTTARA DAKSHIN KHAN","Bhuiyan Para","","UTS"],[1174,"UTTARA DAKSHIN KHAN","Mollartek","","UTS"],[1175,"UTTARA DAKSHIN KHAN","Gawair","","UTS"],[1176,"UTTARA DAKSHIN KHAN","Kosaibari","","UTS"],[1177,"UTTARA DAKSHIN KHAN","Prembagan","","UTS"],[1178,"UTTARA DAKSHIN KHAN","Army Housing Society","","UTS"],[1179,"UTTARA DAKSHIN KHAN","Ismailkholla","","UTS"],[1180,"UTTARA DAKSHIN KHAN","Master Para","","UTS"],[1181,"UTTARA DAKSHIN KHAN","Barua","","UTS"],[1182,"UTTARA DAKSHIN KHAN","Ainusbag","","UTS"],[1183,"UTTARA DAKSHIN KHAN","Rail Crossing","","UTS"],[1184,"UTTARA DAKSHIN KHAN","Brac Market","","UTS"],[1185,"UTTARA DAKSHIN KHAN","Shah Kabir Mazar Road","","UTS"],[1186,"UTTARA DAKSHIN KHAN","Tero Mugh","","UTS"],[1187,"UTTARA DAKSHIN KHAN","Middle Azampur","","UTS"],
+  [1188,"UTTARA EAST","Sector 06","UTS","UTS"],[1189,"UTTARA EAST","Alaol Avenue","","UTS"],[1190,"UTTARA EAST","Tic Colony","","UTS"],[1191,"UTTARA EAST","Sector 4","","UTS"],[1192,"UTTARA EAST","Rajuk Uttara Model College","","UTS"],[1193,"UTTARA EAST","Nawab Habibullah Model School","","UTS"],[1194,"UTTARA EAST","East Azampur","","UTS"],[1195,"UTTARA EAST","Abdullah Pur","","UTS"],[1196,"UTTARA EAST","Nalbhog","","UTS"],[1197,"UTTARA EAST","Bamnartek","","UTS"],[1198,"UTTARA EAST","BDR Market-Sector 6","","UTS"],[1199,"UTTARA EAST","Sector 2","","UTS"],[1200,"UTTARA EAST","Sector 8","","UTS"],[1201,"UTTARA EAST","House Building","","UTS"],
+  [1202,"UTTARA WEST","Sector 09","UTT","U15"],[1203,"UTTARA WEST","Chandalvogh","U15","U15"],[1204,"UTTARA WEST","Bawnia Bazar","","U15"],[1205,"UTTARA WEST","Doli Para","","U15"],[1206,"UTTARA WEST","Priyanka City","","U15"],[1207,"UTTARA WEST","Bot Tala","","U15"],[1208,"UTTARA WEST","Badaldi","","U15"],[1209,"UTTARA WEST","Uludaha","","U15"],[1210,"UTTARA WEST","Tafaliya","","U15"],[1211,"UTTARA WEST","Kali Bari","","U15"],[1212,"UTTARA WEST","Alauddin Tek","","U15"],[1213,"UTTARA WEST","Goyal Bari","","U15"],[1214,"UTTARA WEST","Haji Market","","U15"],[1215,"UTTARA WEST","Barontek","","U15"],[1216,"UTTARA WEST","Vuter Tek","","U15"],[1217,"UTTARA WEST","Sector 18","","U15"],[1218,"UTTARA WEST","Sector 05","","U15"],[1219,"UTTARA WEST","Sector 14","","U15"],[1220,"UTTARA WEST","Sector 03","","U15"],[1221,"UTTARA WEST","Sector 07","","U15"],[1222,"UTTARA WEST","World University","","U15"],[1223,"UTTARA WEST","Shanto Mariam University Main Campus","","U15"],[1224,"UTTARA WEST","Zam Zam Tower","","U15"],[1225,"UTTARA WEST","Ibn Sina Hospital","","U15"],[1226,"UTTARA WEST","Sector 11","","U15"],[1227,"UTTARA WEST","Ranavola","","U15"],[1228,"UTTARA WEST","Ahalia","","U15"],[1229,"UTTARA WEST","Diabari","","U15"],[1230,"UTTARA WEST","Habib Market","","U15"],[1231,"UTTARA WEST","Rupayan City","","U15"],[1232,"UTTARA WEST","Pakuria Bazar","","U15"],[1233,"UTTARA WEST","Sector 01","","U15"],[1234,"UTTARA WEST","Sector 10","","U15"],[1235,"UTTARA WEST","Sector 12","","U15"],[1236,"UTTARA WEST","Sector 13","","U15"],[1237,"UTTARA WEST","Sector 15","","U15"],[1238,"UTTARA WEST","Sector 16","","U15"],[1239,"UTTARA WEST","Sector 17","","U15"],[1240,"UTTARA WEST","Rajlokkhi Complex","","U15"],
+  [1241,"VATARA","VATARA","VTR","MAV"],[1242,"VATARA","Baridhara","BRD","BRD"],[1243,"VATARA","Madani Avenue","MAV","MAV"],[1244,"VATARA","Bashundhara","BSD","BRD"],[1245,"VATARA","Shewra","","BRD"],[1246,"VATARA","Bashundhara R/A","","BRD"],[1247,"VATARA","Bashundhara Block-A","","BRD"],[1248,"VATARA","Bashundhara Block-B","","BRD"],[1249,"VATARA","Bashundhara Block-C","","BRD"],[1250,"VATARA","Bashundhara Block-D","","BRD"],[1251,"VATARA","Bashundhara Block-E","","BRD"],[1252,"VATARA","Bashundhara Block-F","","BRD"],[1253,"VATARA","Bashundhara Block-G","","BRD"],[1254,"VATARA","Bashundhara Block-H","","BRD"],[1255,"VATARA","Bashundhara Block-I","","BRD"],[1256,"VATARA","Bashundhara Block-J","","BRD"],[1257,"VATARA","Bashundhara Block-K","","BRD"],[1258,"VATARA","Bashundhara Block-L","","BRD"],[1259,"VATARA","Baridhara Block-J","","MAV"],[1260,"VATARA","Nadda","","BRD"],[1261,"VATARA","Baridhara Diplomatic Zone","","BRD"],[1262,"VATARA","Baridhara DOHS","","BRD"],[1263,"VATARA","Army Transit Camp","","BRD"],[1264,"VATARA","24 Engineering","","BRD"],[1265,"VATARA","Notun Bazar","","MAV"],[1266,"VATARA","Jhilpar","","MAV"],[1267,"VATARA","Bashtola","","MAV"],[1268,"VATARA","Boroitola Bazar","","MAV"],[1269,"VATARA","Joar Shahara","","BRD"],[1270,"VATARA","Ever Care Hospital","","BRD"],[1271,"VATARA","Nurerchala","","MAV"],[1272,"VATARA","100 Feet Road","","MAV"],[1273,"VATARA","Kalachandpur","","MAV"],[1274,"VATARA","Jogonnathpur","","MAV"],[1275,"VATARA","Kuratoli Bazar (Kuril)","","BRD"],[1276,"VATARA","Kuril Biswa Road","","BRD"],[1277,"VATARA","Confidence Tower","","MAV"],[1278,"VATARA","Boat Ghat Road","","MAV"],[1279,"VATARA","Suvastu Nazar Valley","","MAV"],[1280,"VATARA","Pink City Model Town","","MAV"],[1281,"VATARA","International Convension City","","BRD"],[1282,"VATARA","Sopnopuri Bashundhara R/A","","BRD"],[1283,"VATARA","Beraid","","MAV"],[1284,"VATARA","Dhaka International University","","MAV"],[1285,"VATARA","United International University","","MAV"],[1286,"VATARA","United Housing","","MAV"],[1287,"VATARA","Aga Khan Foundation","","MAV"],[1288,"VATARA","Solmaid","","MAV"],[1289,"VATARA","300 Feet","","BRD"],
+  [1290,"WARI","Wari","WRI","VPK"],[1291,"WARI","Hatkhola","HTL","VPK"],[1292,"WARI","Paramount Concord","","VPK"],[1293,"WARI","Nawabpur","NBP","VPK"],[1294,"WARI","Tikatuly","","VPK"],[1295,"WARI","Rajdhani Super Market","","VPK"],[1296,"WARI","Avoy Das Lane","","VPK"],[1297,"WARI","KM Das Lane","","VPK"],[1298,"WARI","Kaptan Bazar","","VPK"],[1299,"WARI","Golapbag","","DIL"],[1300,"WARI","Railway Colony","","DIL"]
+];
+
+// Populate filters
+const thanas = [...new Set(DATA.map(r => r[1]))].sort();
+const hds = [...new Set(DATA.map(r => r[4]).filter(Boolean))].sort();
+
+const thanaSelect = document.getElementById('thanaFilter');
+const hdSelect = document.getElementById('hdFilter');
+
+thanas.forEach(t => {
+  const o = document.createElement('option');
+  o.value = t; o.textContent = t;
+  thanaSelect.appendChild(o);
+});
+
+hds.forEach(h => {
+  const o = document.createElement('option');
+  o.value = h; o.textContent = h;
+  hdSelect.appendChild(o);
+});
+
+document.getElementById('thanaCount').textContent = thanas.length;
+
+// Sort state
+let sortCol = 0, sortDir = 1;
+let filtered = [...DATA];
+
+function hl(str, q) {
+  if (!q) return str;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return str.replace(re, '<span class="highlight">$1</span>');
+}
+
+function render() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const thana = thanaSelect.value;
+  const hd = hdSelect.value;
+
+  filtered = DATA.filter(r => {
+    const matchThana = !thana || r[1] === thana;
+    const matchHd = !hd || r[4] === hd;
+    const matchQ = !q || [r[1],r[2],r[3],r[4]].some(v => v && v.toLowerCase().includes(q));
+    return matchThana && matchHd && matchQ;
+  });
+
+  filtered.sort((a,b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (sortCol === 0) return sortDir * (av - bv);
+    return sortDir * String(av).localeCompare(String(bv));
+  });
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
+  document.getElementById('resultCount').textContent = filtered.length < DATA.length
+    ? `Showing ${filtered.length} of ${DATA.length}` : '';
+
+  filtered.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="sl-cell" data-label="#">${r[0]}</td>
+      <td class="thana-cell" data-label="Thana">${hl(r[1],q)}</td>
+      <td class="area-cell" data-label="Area">${hl(r[2],q)}</td>
+      <td data-label="OD">${r[3] ? `<span class="od-badge">${hl(r[3],q)}</span>` : '<span class="empty-badge">—</span>'}</td>
+      <td data-label="HD">${r[4] ? `<span class="hd-badge">${hl(r[4],q)}</span>` : '<span class="empty-badge">—</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('th').forEach((th,i) => {
+    th.classList.toggle('sorted', i === col);
+    const arr = document.getElementById('arr'+i);
+    if (arr) arr.textContent = i === col ? (sortDir === 1 ? '↑' : '↓') : '';
+  });
+  render();
+}
+
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  thanaSelect.value = '';
+  hdSelect.value = '';
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', render);
+thanaSelect.addEventListener('change', render);
+hdSelect.addEventListener('change', render);
+
+render();
+</script>
+</body>
+</html>
